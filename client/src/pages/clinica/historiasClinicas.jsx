@@ -115,24 +115,53 @@ export default function HistoriasClinicas() {
             <div>
               <dt>Estado:</dt>
               <dd>{historia.activo ? "Activo" : "Inactivo"}</dd>
-            </div>
-            
+            </div>                      
           </dl>
         </section>
 
+
         <section className="historia-clinica-section">
-          <div className="historia-datos-lista historia-observaciones-lista">
-          <div>
+          <h2>Datos de la mascota</h2>
+          <dl className="historia-datos-lista">
+            <div>
               <dt>Alergias:</dt>
               <dd>{historia.alergias}</dd>
             </div>
-            <div>
+            <div className="historia-observaciones-fila">
               <dt>Observaciones:</dt>
               <dd>{historia.observaciones || "-"}</dd>
-            </div>
-            </div>
+            </div>            
+          </dl>
         </section>
       </div>
+
+      <section className="historia-clinica-section historia-vacunas-section">
+        <h2>Vacunas aplicadas</h2>
+        {historia.vacunas?.length ? (
+          <div className="historia-vacunas-wrapper">
+            <table className="historia-vacunas-tabla">
+              <thead>
+                <tr>
+                  <th scope="col">Vacuna</th>
+                  <th scope="col">Fecha de aplicación</th>
+                  <th scope="col">Próxima dosis</th>
+                </tr>
+              </thead>
+              <tbody>
+                {historia.vacunas.map((vacuna, index) => (
+                  <tr key={`${vacuna.nombre_vacuna}-${vacuna.fecha_aplicacion}-${index}`}>
+                    <td>{vacuna.nombre_vacuna || "-"}</td>
+                    <td>{formatearFecha(vacuna.fecha_aplicacion)}</td>
+                    <td>{formatearFecha(vacuna.proxima_dosis)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="historia-vacunas-vacio">No hay vacunas registradas.</p>
+        )}
+      </section>
 
       <section className="historia-clinica-section">
         <div className="historia-seccion-heading">

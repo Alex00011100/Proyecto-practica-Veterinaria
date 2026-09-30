@@ -44,6 +44,10 @@
   background: var(--vet-purple-bg);
 }
 
+.historia-vacunas-section {
+  margin-bottom: 20px;
+}
+
 .historia-clinica-section h2 {
   color: var(--vet-purple);
 }
@@ -65,6 +69,10 @@
   gap: 10px;
 }
 
+.historia-observaciones-fila {
+  grid-column: 1 / -1;
+}
+
 .historia-datos-lista dt {
   color: var(--vet-purple);
   font-size: 0.8rem;
@@ -75,6 +83,37 @@
 .historia-datos-lista dd {
   margin: 0;
   color: var(--text);
+}
+
+.historia-vacunas-wrapper {
+  overflow-x: auto;
+}
+
+.historia-vacunas-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.historia-vacunas-tabla th,
+.historia-vacunas-tabla td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--vet-purple-border);
+}
+
+.historia-vacunas-tabla th {
+  color: var(--vet-purple);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.historia-vacunas-tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.historia-vacunas-vacio {
+  margin: 0;
+  color: var(--text-muted);
 }
 
 .historia-seccion-heading {
