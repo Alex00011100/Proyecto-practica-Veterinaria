@@ -1,6 +1,6 @@
 import mascotasModel from '../models/mascotas.model.js';
 
-const { añadirMascotaADB, obtenerListaMascotas, editarMascotaADB, eliminarMascotaADB, obtenerVacunas, obtenerConsultas, obtenerAntecedentes, datosMascota, añadirVacuna, añadirConsulta, añadirAntecedente } = mascotasModel;
+const { añadirMascotaADB, obtenerListaMascotas, editarMascotaADB, eliminarMascotaADB, obtenerVacunas, obtenerConsultas, obtenerAntecedentes, datosMascota, añadirVacuna, añadirConsulta, añadirAntecedente, obtenerVacunaPorId, obtenerConsultaPorId } = mascotasModel;
 
 const listaMascotas = async (req, res) => {
     try {
@@ -103,6 +103,86 @@ res.status(200).json({
     }
 }
 
+const registrarConsulta = async (req, res) => {
+    try {
+        const {id_mascota, fecha_consulta,peso,temperatura, motivo, diagnostico, tratamiento, observaciones,id_lote,nombre_vacuna,fecha_aplicacion,proxima_dosis,observaciones_vacuna} = req.body;
+        console.log('Datos de la consulta recibidos:', req.body);
+        if(!id_mascota || !fecha_consulta || !peso || !temperatura || !motivo || !diagnostico || !tratamiento || !observaciones) {
+            return res.status(400).json({ message: 'Faltan datos obligatorios de la consulta' });
+        }
+        if(id_mascota){
+            const consulta = {
+                id_mascota,
+                id_veterinario: req.user.id,
+                fecha_consulta,
+                peso,
+                temperatura,
+                motivo,
+                diagnostico,
+                tratamiento,
+                observaciones
+            };
+            const consultaRegistrada = await añadirConsulta(consulta);
+            if(!consultaRegistrada) {
+            return res.status(500).json({ message: 'Error al registrar la consulta' });
+            }
+        }
+        if(nombre_vacuna){
+            if(!fecha_aplicacion || !proxima_dosis || !observaciones_vacuna) {
+                return res.status(400).json({ message: 'Faltan datos obligatorios de la vacuna' });
+            }
+            const vacuna = {
+            id_mascota,
+            id_lote,
+            nombre_vacuna,
+            fecha_aplicacion,
+            proxima_dosis,
+            id_veterinario: req.user.id,
+            observaciones: observaciones_vacuna
+        };
+        const vacunaRegistrada = await añadirVacuna(vacuna);
+        if(!vacunaRegistrada) {
+            return res.status(500).json({ message: 'Error al registrar la vacuna' });
+        }
+        }
+        res.status(200).json({ message: 'Vacuna registrada correctamente', vacuna: vacunaRegistrada });
+        res.status(200).json({ message: 'Consulta registrada correctamente', consulta: consultaRegistrada });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al registrar la consulta', error });
+    }
+}
+
+const vacunasPorId = async (req, res) => {
+    try {
+        const { id_vacuna } = req.params;
+        if(!id_vacuna) {
+            return res.status(400).json({ message: 'Falta el ID de la vacuna' });
+        }
+        const vacuna = await obtenerVacunaPorId(id_vacuna);
+        if(!vacuna) {
+            return res.status(404).json({ message: 'Vacuna no encontrada' });
+        }
+        res.status(200).json(vacuna);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener la vacuna', error });
+    }
+};
+
+const consultaPorId = async (req, res) => {
+    try {
+        const { id_consulta } = req.params;
+        if(!id_consulta) {
+            return res.status(400).json({ message: 'Falta el ID de la consulta' });
+        }
+        const consulta = await obtenerConsultaPorId(id_consulta);
+        if(!consulta) {
+            return res.status(404).json({ message: 'Consulta no encontrada' });
+        }
+        res.status(200).json(consulta);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener la consulta', error });
+    }
+};
 /*const actualizarHistoriaClinica = async (req, res) => {
     try {
         const { id } = req.params;
@@ -138,5 +218,8 @@ export default {
     editarMascota,
     eliminarMascota,
     historiaClinica,
+    registrarConsulta,
+    vacunasPorId,
+    consultaPorId,
     //actualizarHistoriaClinica
 };

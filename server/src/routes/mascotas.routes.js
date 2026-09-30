@@ -9,7 +9,12 @@ router.post('/add', validarUsuario, mascotasController.añadirMascota);
 
 router.get('/historia/:id', validarUsuario, mascotasController.historiaClinica);
 
-//router.put('/historia/actualizar/:id', validarUsuario, mascotasController.actualizarHistoriaClinica);
+
+
+router.post('/historia/consulta', validarUsuario, mascotasController.registrarConsulta);
+
+router.get('/historia/consulta/:id_consulta', validarUsuario, mascotasController.consultaPorId);
+router.get('/historia/vacuna/:id_vacuna', validarUsuario, mascotasController.vacunasPorId);
 
 router.put('/editar/:id', validarUsuario, mascotasController.editarMascota);
 
