@@ -1,6 +1,7 @@
 -- 0. Limpieza de tablas pre-existentes
+DROP TABLE IF EXISTS vacunas CASCADE;
 DROP TABLE IF EXISTS estudios_adjuntos;
-DROP TABLE IF EXISTS vacunas;
+DROP TABLE IF EXISTS detalle_consulta;
 DROP TABLE IF EXISTS consultas;
 DROP TABLE IF EXISTS antecedentes;
 DROP TABLE IF EXISTS detalle_ventas;
@@ -33,20 +34,17 @@ CREATE TABLE usuarios (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_rol FOREIGN KEY (id_rol) REFERENCES roles(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
-
 -- 3. Carga de los Roles del Sistema
 INSERT INTO roles (nombre, descripcion) VALUES 
 ('Administrador', 'Acceso total al sistema, gestión de usuarios y visualización de estadísticas de negocio.'),
 ('Veterinario', 'Gestión de historias clínicas de pacientes, consultas médicas y asignación/control de turnos.'),
 ('Administrativo/Vendedor', 'Control de inventario (stock), registro de ventas, facturación y atención en mostrador.');
-
--- 4. Carga de Usuarios de Prueba (Administrador general, Usuario: Admin, Contraseña: admin)
+-- 4. Carga de Usuarios de Prueba
 INSERT INTO usuarios (nombre, usuario, email, password_hash, id_rol) VALUES 
-('Administrador', 'Admin', 'admin@gmail.com', '$2b$10$uH0.iNNUi9hykxRX5Xg1c.BZz.iFarkF9FPCLSVEW8meVjVl4kG82', (SELECT id FROM roles WHERE nombre = 'Administrador')),
+('Matias Picasso', 'Matias', 'rhagis@gmail.com', '$2b$10$sGBJ.aHYMLNw8OLnSjYLlO5Gmd36SfObDw0LipcPiVfjnR4qFXGTa', (SELECT id FROM roles WHERE nombre = 'Administrativo/Vendedor')),
 ('Carlos Gómez', 'CarlitosVet', 'admin@veterinaria.com', 'admin123', (SELECT id FROM roles WHERE nombre = 'Administrador')),
 ('Dra. Laura Martínez', 'LauritaVet', 'laura.vet@veterinaria.com', '$2y$10$S9bB7X4mF8gH2jK1l3m4n5o6p7q8r9s...', (SELECT id FROM roles WHERE nombre = 'Veterinario')),
 ('Matias Silva', 'MatiVet', 'ventas@veterinaria.com', '$2y$10$U7vW8x9y0z1a2b3c4d5e6f7g8h9i0j...', (SELECT id FROM roles WHERE nombre = 'Administrativo/Vendedor'));
-
 -- 5. Tabla de clientes
 CREATE TABLE clientes (
     id SERIAL PRIMARY KEY,
@@ -62,14 +60,12 @@ CREATE TABLE clientes (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     activo BOOLEAN DEFAULT TRUE
 );
-
 -- 6. Insertamos clientes ficticios
 INSERT INTO clientes (nombre, apellido, dni, email, telefono, telefono_alternativo, direccion, localidad, ciudad) VALUES 
 ('Consumidor', 'Final', '99999999', 'consumidor@veterinaria.com', '0000000', '0000001', 'Mostrador', 'San Pedro', 'San Pedro'),
 ('sin dueño', 'sin dueño', '11111111', 'sin.dueño@veterinaria.com', '111111', '111112', 'Mostrador', 'San Pedro', 'San Pedro'),
 ('Juan', 'Pérez', '38444555', 'juan.perez@gmail.com', '3329-154422', '3329-154423', 'Mitre 1230, San Pedro', 'San Pedro', 'San Pedro'),
 ('María', 'Rodríguez', '40111222', 'maria.rodriguez@gmail.com', '3329-155566', '3329-155567', 'Pellegrini 450, San Pedro', 'San Pedro', 'San Pedro');
-
 -- 7. Tabla de Categorías
 CREATE TABLE categorias (
     id SERIAL PRIMARY KEY,
@@ -168,27 +164,111 @@ CREATE TABLE detalle_ventas (
         (id_producto IS NULL AND id_servicio IS NOT NULL)
     )
 );
--- 16. Tabla de Mascotas
+-- 16. Tablas de ESPECIES Y RAZAS (Movidas antes de Mascotas)
+CREATE TABLE especies (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
+    descripcion VARCHAR(255)
+);
+
+CREATE TABLE razas (
+    id SERIAL PRIMARY KEY,
+    id_especie INTEGER NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(255),
+    CONSTRAINT fk_raza_especie FOREIGN KEY (id_especie) 
+        REFERENCES especies(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT uq_especie_raza UNIQUE (id_especie, nombre)
+);
+
+-- Carga de Especies
+INSERT INTO especies (nombre, descripcion) VALUES
+('Perro', 'Canino doméstico'),
+('Gato', 'Felino doméstico'),
+('Conejo', 'Lagomorfo doméstico'),
+('Hurón', 'Mustélido doméstico'),
+('Cobayo', 'Pequeño roedor doméstico'),
+('Hámster', 'Pequeño roedor de compañía'),
+('Ave', 'Aves de jaula o compañía (loros, canarios, etc.)'),
+('Tortuga', 'Reptil quelonio terrestre o acuático'),
+('Erizo', 'Erizo africano pigmeo'),
+('Chinchilla', 'Roedor sudamericano de pelo denso');
+
+-- Carga de Razas (Perro)
+INSERT INTO razas (id_especie, nombre) VALUES
+((SELECT id FROM especies WHERE nombre = 'Perro'), 'Mestizo / Criollo'),
+((SELECT id FROM especies WHERE nombre = 'Perro'), 'Labrador Retriever'),
+((SELECT id FROM especies WHERE nombre = 'Perro'), 'Golden Retriever'),
+((SELECT id FROM especies WHERE nombre = 'Perro'), 'Bulldog Francés'),
+((SELECT id FROM especies WHERE nombre = 'Perro'), 'Pastor Alemán'),
+((SELECT id FROM especies WHERE nombre = 'Perro'), 'Caniche / Poodle'),
+((SELECT id FROM especies WHERE nombre = 'Perro'), 'Beagle'),
+((SELECT id FROM especies WHERE nombre = 'Perro'), 'Rottweiler'),
+((SELECT id FROM especies WHERE nombre = 'Perro'), 'Boxer'),
+((SELECT id FROM especies WHERE nombre = 'Perro'), 'Yorkshire Terrier');
+
+-- Carga de Razas (Gato)
+INSERT INTO razas (id_especie, nombre) VALUES
+((SELECT id FROM especies WHERE nombre = 'Gato'), 'Común Europeo / Mestizo'),
+((SELECT id FROM especies WHERE nombre = 'Gato'), 'Siamés'),
+((SELECT id FROM especies WHERE nombre = 'Gato'), 'Persa'),
+((SELECT id FROM especies WHERE nombre = 'Gato'), 'Maine Coon'),
+((SELECT id FROM especies WHERE nombre = 'Gato'), 'Bengalí'),
+((SELECT id FROM especies WHERE nombre = 'Gato'), 'Ragdoll'),
+((SELECT id FROM especies WHERE nombre = 'Gato'), 'Sphynx / Esfinge'),
+((SELECT id FROM especies WHERE nombre = 'Gato'), 'British Shorthair'),
+((SELECT id FROM especies WHERE nombre = 'Gato'), 'Azul Ruso'),
+((SELECT id FROM especies WHERE nombre = 'Gato'), 'Angora Turco');
+
+-- Carga de Razas (Otras especies)
+INSERT INTO razas (id_especie, nombre) VALUES
+((SELECT id FROM especies WHERE nombre = 'Conejo'), 'Cabeza de León'),
+((SELECT id FROM especies WHERE nombre = 'Conejo'), 'Belier / Mini Lop'),
+((SELECT id FROM especies WHERE nombre = 'Hurón'), 'Hurón Estándar'),
+((SELECT id FROM especies WHERE nombre = 'Cobayo'), 'Cobayo de Pelo Corto (Americano)'),
+((SELECT id FROM especies WHERE nombre = 'Cobayo'), 'Cobayo Abisinio'),
+((SELECT id FROM especies WHERE nombre = 'Hámster'), 'Hámster Sirio / Dorado'),
+((SELECT id FROM especies WHERE nombre = 'Hámster'), 'Hámster Ruso'),
+((SELECT id FROM especies WHERE nombre = 'Ave'), 'Canario'),
+((SELECT id FROM especies WHERE nombre = 'Ave'), 'Periquito Australiano'),
+((SELECT id FROM especies WHERE nombre = 'Ave'), 'Ninfa / Carolina'),
+((SELECT id FROM especies WHERE nombre = 'Tortuga'), 'Tortuga Terrestre Argentina'),
+((SELECT id FROM especies WHERE nombre = 'Tortuga'), 'Tortuga de Orejas Rojas'),
+((SELECT id FROM especies WHERE nombre = 'Erizo'), 'Erizo Africano Pigmeo'),
+((SELECT id FROM especies WHERE nombre = 'Chinchilla'), 'Chinchilla Lanígera Estándar');
+
+-- 17. Tabla de mascotas
 CREATE TABLE mascotas (
     id SERIAL PRIMARY KEY,
     id_cliente INTEGER NOT NULL,
     nombre VARCHAR(100) NOT NULL,
-    especie VARCHAR(50) NOT NULL,
-    raza VARCHAR(100),
+    id_raza INTEGER,
     fecha_nacimiento DATE,
-    peso DECIMAL(5,2),                 -- Peso de registro (máximo 999.99 kg) (Permitir actualizar en cualquier momento por la ficha clínica)
+    peso DECIMAL(5,2),
     genero VARCHAR(20),
     alergias TEXT,
     observaciones TEXT,
-    numero_chip VARCHAR(30) UNIQUE,     -- Número de chip de identificación (opcional)
+    numero_chip VARCHAR(30) UNIQUE,
     activo BOOLEAN DEFAULT TRUE,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_cliente_mascota FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT fk_cliente_mascota FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_mascota_raza FOREIGN KEY (id_raza) REFERENCES razas(id) ON DELETE SET NULL ON UPDATE CASCADE
 );
--- 17. Inserción de Mascotas de Prueba
-INSERT INTO mascotas (id_cliente, nombre, especie, raza, fecha_nacimiento, peso, genero, alergias, observaciones, numero_chip) VALUES 
-((SELECT id FROM clientes WHERE dni = '38444555' LIMIT 1), 'Roko', 'Perro', 'Perro', '2020-05-15', 20.50, 'Macho', 'Ninguna, es una bestia', 'Le falta un ojo', '012345678912345'),
-((SELECT id FROM clientes WHERE dni = '40111222' LIMIT 1), 'Michi', 'Gato', 'Gato', '2022-11-10', 3.80, 'Hembra', 'Alergia a la penicilina', 'Le falta un pie', '123456789012345');
+
+-- Inserción de Mascotas de Prueba
+INSERT INTO mascotas (id_cliente, nombre, id_raza, fecha_nacimiento, peso, genero, alergias, observaciones, numero_chip) VALUES 
+(
+    (SELECT id FROM clientes WHERE dni = '38444555' LIMIT 1), 
+    'Roko', 
+    (SELECT id FROM razas WHERE nombre = 'Mestizo / Criollo' AND id_especie = (SELECT id FROM especies WHERE nombre = 'Perro')), 
+    '2020-05-15', 20.50, 'Macho', 'Ninguna, es una bestia', 'Le falta un ojo', '012345678912345'
+),
+(
+    (SELECT id FROM clientes WHERE dni = '40111222' LIMIT 1), 
+    'Michi', 
+    (SELECT id FROM razas WHERE nombre = 'Común Europeo / Mestizo' AND id_especie = (SELECT id FROM especies WHERE nombre = 'Gato')), 
+    '2022-11-10', 3.80, 'Hembra', 'Alergia a la penicilina', 'Le falta un pie', '123456789012345'
+);
 -- 18. Tabla de Antecedentes Médicos (patologías previas, cirugías, condiciones crónicas)
 CREATE TABLE antecedentes (
     id SERIAL PRIMARY KEY,
@@ -217,21 +297,16 @@ CREATE TABLE consultas (
     CONSTRAINT fk_consulta_veterinario FOREIGN KEY (id_veterinario) 
         REFERENCES usuarios(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
--- 20. Tabla de Vacunas y Desparasitaciones aplicadas
-CREATE TABLE vacunas (
+-- 20. Tabla de Vacunas, medicamentos y Desparasitaciones aplicadas
+CREATE TABLE detalle_consulta (
     id SERIAL PRIMARY KEY,
-    id_mascota INTEGER NOT NULL, -- Referencia a la mascota a la que se le aplica la vacuna
-    id_veterinario INTEGER NOT NULL, -- Referencia a usuarios (con rol Veterinario)
-    id_lote INTEGER, -- Opcional: vincula directamente con el lote de stock que usaste / Llamar desde la tabla de lotes para control de vencimientos y trazabilidad
-    nombre_vacuna VARCHAR(100) NOT NULL, -- Ej: 'Quíntuple Canina', 'Antirrábica'
-    fecha_aplicacion DATE NOT NULL DEFAULT CURRENT_DATE,
-    proxima_dosis DATE, -- Clave para alertas y recordatorios
+    id_consulta INTEGER NOT NULL,
+    id_lote INTEGER,             -- Opcional: si proviene de un lote/insumo de stock (ej. vacuna, antibiótico)
+    proxima_dosis DATE,          -- Para alertas/recordatorios de refuerzos (PUEDE SER NULL SI NO HAY REFUERZO)
     observaciones TEXT,
-    CONSTRAINT fk_vacuna_mascota FOREIGN KEY (id_mascota) 
-        REFERENCES mascotas(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_vacuna_veterinario FOREIGN KEY (id_veterinario) 
-        REFERENCES usuarios(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_vacuna_lote FOREIGN KEY (id_lote)  -- Si la vacuna se aplicó desde un lote de stock, se registra el lote para control de vencimientos y trazabilidad
+    CONSTRAINT fk_detalle_consulta FOREIGN KEY (id_consulta) 
+        REFERENCES consultas(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_detalle_lote FOREIGN KEY (id_lote) 
         REFERENCES lotes(id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 -- 21. Tabla de Estudios Adjuntos (imágenes, radiografías, análisis de laboratorio, etc.) - NO CONTEMPLADA EN EL SPRINT 5, PERO SE DEJA LA ESTRUCTURA PARA FUTURO DESARROLLO
@@ -271,97 +346,11 @@ INSERT INTO consultas (id_mascota, id_veterinario, motivo, peso_actual, temperat
     'Dieta húmeda gastrointestinal y protector gástrico.',
     'Controlar hidratación en 48hs.'
 );
--- 24. Vacunas de prueba (usando los lotes existentes de tu stock)
-INSERT INTO vacunas (id_mascota, id_veterinario, id_lote, nombre_vacuna, fecha_aplicacion, proxima_dosis, observaciones) VALUES
-(
-    (SELECT id FROM mascotas WHERE nombre = 'Roko' LIMIT 1),
-    (SELECT id FROM usuarios WHERE usuario = 'LauritaVet' LIMIT 1),
+-- 24. Detalle de vacunas aplicadas de prueba
+INSERT INTO detalle_consulta (id_consulta, id_lote, proxima_dosis, observaciones)
+VALUES (
+    1, -- ID de la consulta creada previamente (HARDCODEADO EN ESTE CASO)
     (SELECT id FROM lotes WHERE codigo_lote = 'VAC-26-A' LIMIT 1),
-    'Vacuna Quíntuple Canina',
-    CURRENT_DATE,
     CURRENT_DATE + INTERVAL '1 year',
     'Toleró bien la aplicación sin reacciones adversas.'
-),
-(
-    (SELECT id FROM mascotas WHERE nombre = 'Michi' LIMIT 1),
-    (SELECT id FROM usuarios WHERE usuario = 'LauritaVet' LIMIT 1),
-    NULL, -- Aplicada externamente en otra clínica
-    'Triple Felina',
-    CURRENT_DATE - INTERVAL '6 month',
-    CURRENT_DATE + INTERVAL '6 month',
-    'Refuerzo colocado según libreta sanitaria previa.'
 );
--- 25. Creación de tablas de Especies y Razas
-CREATE TABLE especies (
-    id SERIAL PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL UNIQUE,
-    descripcion VARCHAR(255)
-);
-
-CREATE TABLE razas (
-    id SERIAL PRIMARY KEY,
-    id_especie INTEGER NOT NULL,
-    nombre VARCHAR(100) NOT NULL,
-    descripcion VARCHAR(255),
-    CONSTRAINT fk_raza_especie FOREIGN KEY (id_especie) 
-        REFERENCES especies(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT uq_especie_raza UNIQUE (id_especie, nombre)
-);
-
--- 26. Inserción de 10 Especies y 10 Razas comunes por especie principal
-
--- 26.1 Carga de 10 Especies comunes
-INSERT INTO especies (nombre, descripcion) VALUES
-('Perro', 'Canino doméstico'),
-('Gato', 'Felino doméstico'),
-('Conejo', 'Lagomorfo doméstico'),
-('Hurón', 'Mustélido doméstico'),
-('Cobayo', 'Pequeño roedor doméstico'),
-('Hámster', 'Pequeño roedor de compañía'),
-('Ave', 'Aves de jaula o compañía (loros, canarios, etc.)'),
-('Tortuga', 'Reptil quelonio terrestre o acuático'),
-('Erizo', 'Erizo africano pigmeo'),
-('Chinchilla', 'Roedor sudamericano de pelo denso');
-
--- 26.2 Carga de 10 Razas para Perro
-INSERT INTO razas (id_especie, nombre) VALUES
-((SELECT id FROM especies WHERE nombre = 'Perro'), 'Mestizo / Criollo'),
-((SELECT id FROM especies WHERE nombre = 'Perro'), 'Labrador Retriever'),
-((SELECT id FROM especies WHERE nombre = 'Perro'), 'Golden Retriever'),
-((SELECT id FROM especies WHERE nombre = 'Perro'), 'Bulldog Francés'),
-((SELECT id FROM especies WHERE nombre = 'Perro'), 'Pastor Alemán'),
-((SELECT id FROM especies WHERE nombre = 'Perro'), 'Caniche / Poodle'),
-((SELECT id FROM especies WHERE nombre = 'Perro'), 'Beagle'),
-((SELECT id FROM especies WHERE nombre = 'Perro'), 'Rottweiler'),
-((SELECT id FROM especies WHERE nombre = 'Perro'), 'Boxer'),
-((SELECT id FROM especies WHERE nombre = 'Perro'), 'Yorkshire Terrier');
-
--- 26.3 Carga de 10 Razas para Gato
-INSERT INTO razas (id_especie, nombre) VALUES
-((SELECT id FROM especies WHERE nombre = 'Gato'), 'Común Europeo / Mestizo'),
-((SELECT id FROM especies WHERE nombre = 'Gato'), 'Siamés'),
-((SELECT id FROM especies WHERE nombre = 'Gato'), 'Persa'),
-((SELECT id FROM especies WHERE nombre = 'Gato'), 'Maine Coon'),
-((SELECT id FROM especies WHERE nombre = 'Gato'), 'Bengalí'),
-((SELECT id FROM especies WHERE nombre = 'Gato'), 'Ragdoll'),
-((SELECT id FROM especies WHERE nombre = 'Gato'), 'Sphynx / Esfinge'),
-((SELECT id FROM especies WHERE nombre = 'Gato'), 'British Shorthair'),
-((SELECT id FROM especies WHERE nombre = 'Gato'), 'Azul Ruso'),
-((SELECT id FROM especies WHERE nombre = 'Gato'), 'Angora Turco');
-
--- 26.4 Razas/Tipos representativos para las demás especies
-INSERT INTO razas (id_especie, nombre) VALUES
-((SELECT id FROM especies WHERE nombre = 'Conejo'), 'Cabeza de León'),
-((SELECT id FROM especies WHERE nombre = 'Conejo'), 'Belier / Mini Lop'),
-((SELECT id FROM especies WHERE nombre = 'Hurón'), 'Hurón Estándar'),
-((SELECT id FROM especies WHERE nombre = 'Cobayo'), 'Cobayo de Pelo Corto (Americano)'),
-((SELECT id FROM especies WHERE nombre = 'Cobayo'), 'Cobayo Abisinio'),
-((SELECT id FROM especies WHERE nombre = 'Hámster'), 'Hámster Sirio / Dorado'),
-((SELECT id FROM especies WHERE nombre = 'Hámster'), 'Hámster Ruso'),
-((SELECT id FROM especies WHERE nombre = 'Ave'), 'Canario'),
-((SELECT id FROM especies WHERE nombre = 'Ave'), 'Periquito Australiano'),
-((SELECT id FROM especies WHERE nombre = 'Ave'), 'Ninfa / Carolina'),
-((SELECT id FROM especies WHERE nombre = 'Tortuga'), 'Tortuga Terrestre Argentina'),
-((SELECT id FROM especies WHERE nombre = 'Tortuga'), 'Tortuga de Orejas Rojas'),
-((SELECT id FROM especies WHERE nombre = 'Erizo'), 'Erizo Africano Pigmeo'),
-((SELECT id FROM especies WHERE nombre = 'Chinchilla'), 'Chinchilla Lanígera Estándar');
