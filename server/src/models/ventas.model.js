@@ -114,7 +114,7 @@ const generarReporteVentas = async () => {
 const generarReporteVentasPorDia = async (fecha) => {
     const {rows} = await db.query(
         `SELECT
-            DATE_TRUNC('DAY', v.fecha_venta) AS fecha,
+            DATE_TRUNC('HOUR', v.fecha_venta) AS fecha,
             COUNT(*) AS total_ventas,
             SUM(CASE WHEN v.metodo_pago = 'efectivo' THEN v.total ELSE 0 END) AS efectivo,
             SUM(CASE WHEN v.metodo_pago = 'tarjeta' THEN v.total ELSE 0 END) AS tarjeta,
@@ -134,7 +134,7 @@ const generarReporteVentasPorDia = async (fecha) => {
 const generarReporteVentasPorSemana = async (fecha_inicio, fecha_fin) => {
     const {rows} = await db.query(
         `SELECT
-            DATE_TRUNC('WEEK', v.fecha_venta) AS fecha,
+            DATE_TRUNC('DAY', v.fecha_venta) AS fecha,
             COUNT(*) AS total_ventas,
             SUM(CASE WHEN v.metodo_pago = 'efectivo' THEN v.total ELSE 0 END) AS efectivo,
             SUM(CASE WHEN v.metodo_pago = 'tarjeta' THEN v.total ELSE 0 END) AS tarjeta,
@@ -154,7 +154,7 @@ const generarReporteVentasPorSemana = async (fecha_inicio, fecha_fin) => {
 const generarReporteVentasPorMes = async (fecha_inicio, fecha_fin) => {
     const {rows} = await db.query(
         `SELECT
-            DATE_TRUNC('MONTH', v.fecha_venta) AS fecha,
+            DATE_TRUNC('WEEK', v.fecha_venta) AS fecha,
             COUNT(*) AS total_ventas,
             SUM(CASE WHEN v.metodo_pago = 'efectivo' THEN v.total ELSE 0 END) AS efectivo,
             SUM(CASE WHEN v.metodo_pago = 'tarjeta' THEN v.total ELSE 0 END) AS tarjeta,
