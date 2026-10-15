@@ -71,9 +71,10 @@ const historiaClinica = async (req, res) => {
             return res.status(400).json({ message: 'Falta el ID de la mascota' });
         }
         const datos = await datosMascota(id);
-        const vacunas = await obtenerVacunas(id);
         const consultas = await obtenerConsultas(id);
         const antecedentes = await obtenerAntecedentes(id);
+        console.log('Datos de la mascota:', datos);
+
         if (!datos) {
     return res.status(404).json({
         message: 'Mascota no encontrada'
@@ -94,7 +95,6 @@ res.status(200).json({
         activo: datos.activo,
         numero_chip: datos.numero_chip,
         dueño: datos.id_cliente,
-        vacunas: vacunas,
         consultas: consultas,
         antecedentes: antecedentes
     }

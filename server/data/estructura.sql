@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS especies;
 DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS roles;
+
 -- 1. Creación de tabla de roles
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,

@@ -57,6 +57,8 @@ export default function HistoriasClinicas() {
             withCredentials: true,
           }),
         ]);
+        console.log(historiaResponse);
+        console.log(clientesResponse);
 
         const historiaData = historiaResponse.data.historiaClinica;
         const cliente = clientesResponse.data.clientes.find(
