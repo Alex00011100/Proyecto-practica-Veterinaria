@@ -10,6 +10,8 @@ DROP TABLE IF EXISTS ventas;
 DROP TABLE IF EXISTS lotes; 
 DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS categorias;
+
+DROP TABLE IF EXISTS turnos;
 DROP TABLE IF EXISTS mascotas;
 DROP TABLE IF EXISTS razas;
 DROP TABLE IF EXISTS especies;
@@ -42,8 +44,8 @@ INSERT INTO roles (nombre, descripcion) VALUES
 ('Administrativo/Vendedor', 'Control de inventario (stock), registro de ventas, facturación y atención en mostrador.');
 -- 4. Carga de Usuarios de Prueba
 INSERT INTO usuarios (nombre, usuario, email, password_hash, id_rol) VALUES 
-('Matias Picasso', 'Matias', 'rhagis@gmail.com', '$2b$10$sGBJ.aHYMLNw8OLnSjYLlO5Gmd36SfObDw0LipcPiVfjnR4qFXGTa', (SELECT id FROM roles WHERE nombre = 'Administrativo/Vendedor')),
-('Carlos Gómez', 'CarlitosVet', 'admin@veterinaria.com', 'admin123', (SELECT id FROM roles WHERE nombre = 'Administrador')),
+('Admin', 'admin', 'admin@veterinaria.com', '$2b$10$EIRiOPpgnwYrVw1So5bUguaeMbTycxndA.0C./ezIB93hcYWe12Ru', (SELECT id FROM roles WHERE nombre = 'Administrador')),
+('Carlos Gómez', 'CarlitosVet', 'carlos.gomez@veterinaria.com', 'admin123', (SELECT id FROM roles WHERE nombre = 'Administrador')),
 ('Dra. Laura Martínez', 'LauritaVet', 'laura.vet@veterinaria.com', '$2y$10$S9bB7X4mF8gH2jK1l3m4n5o6p7q8r9s...', (SELECT id FROM roles WHERE nombre = 'Veterinario')),
 ('Matias Silva', 'MatiVet', 'ventas@veterinaria.com', '$2y$10$U7vW8x9y0z1a2b3c4d5e6f7g8h9i0j...', (SELECT id FROM roles WHERE nombre = 'Administrativo/Vendedor'));
 -- 5. Tabla de clientes
