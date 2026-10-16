@@ -1,5 +1,5 @@
 -- 0. Limpieza de tablas pre-existentes
-DROP TABLE IF EXISTS vacunas CASCADE;
+
 DROP TABLE IF EXISTS estudios_adjuntos;
 DROP TABLE IF EXISTS detalle_consulta;
 DROP TABLE IF EXISTS consultas;
@@ -360,17 +360,11 @@ VALUES (
 -- 25. Tabla turnos
 CREATE TABLE turnos (
     id SERIAL PRIMARY KEY,
-    mascota_id INT REFERENCES mascotas(id) ON DELETE SET NULL, -- Puede ser NULL si es turno nuevo (es decir sin mascota registrada)
-    nombre_contacto VARCHAR(100),   -- Se usa solo si mascota_id es NULL (mascota nueva)
-    telefono_contacto VARCHAR(50), -- Se usa solo si mascota_id es NULL (mascota nueva)
-    veterinario_id INT REFERENCES usuarios(id) ON DELETE SET NULL, -- Profesional asignado (puede ser asignado después)
-    creado_por_usuario_id INT REFERENCES usuarios(id) ON DELETE SET NULL, -- Administrativo que cargó el turno
+    nombre_contacto VARCHAR(100) NOT NULL,   -- Se usa solo si mascota_id es NULL (mascota nueva)
+    telefono_contacto VARCHAR(50) NOT NULL, -- Se usa solo si mascota_id es NULL (mascota nueva)
+    profesional_id INT REFERENCES usuarios(id) ON DELETE SET NULL, -- Profesional asignado (puede ser asignado después)
     fecha_hora TIMESTAMP NOT NULL, -- Fecha y hora del turno
     motivo VARCHAR(255) NOT NULL, -- Motivo de la consulta o atención
     estado VARCHAR(30) DEFAULT 'pendiente', -- 'pendiente', 'cancelado', 'completado'
-    observaciones TEXT, -- Algún detalle adicional sobre el turno
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de creación del turno
-    CONSTRAINT chk_contacto_o_mascota CHECK ( -- Que tenga al menos mascota_id o nombre_contacto y telefono_contacto
-        mascota_id IS NOT NULL OR (nombre_contacto IS NOT NULL AND telefono_contacto IS NOT NULL)
-    )
+    observaciones TEXT -- Algún detalle adicional sobre el turno
 );
