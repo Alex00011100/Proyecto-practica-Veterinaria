@@ -85,8 +85,8 @@ res.status(200).json({
     historiaClinica: {
         id: datos.id,
         nombre: datos.nombre,
-        especie: datos.especie,
-        raza: datos.raza,
+        especie: datos.id_especie,
+        raza: datos.id_raza,
         fecha_nacimiento: datos.fecha_nacimiento,
         sexo: datos.genero,
         alergias: datos.alergias,

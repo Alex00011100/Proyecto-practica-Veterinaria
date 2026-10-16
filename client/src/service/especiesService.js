@@ -4,7 +4,7 @@ const API_URL = "http://localhost:3000/especies";
 
 export const obtenerEspecies = async () => {
     const response = await axios.get(API_URL, {
-        whitCredentials:true,
+        withCredentials:true,
     });
 
     return response.data.especies ?? [];
@@ -12,8 +12,8 @@ export const obtenerEspecies = async () => {
 
 export const obtenerRazas = async (idEspecie) => {
     const response = await axios.get(
-        $,{API_URL}/$,{idEspecie}/obtenerRazas,
-        {whitCredentials:true }
+        `${API_URL}/${idEspecie}/razas`,
+        {withCredentials:true, }
     );
 
     return response.data.razas ?? [];

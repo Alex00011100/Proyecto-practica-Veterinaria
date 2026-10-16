@@ -58,16 +58,19 @@ export default function HistoriasClinicas() {
             withCredentials: true,
           }),
         ]);
-        console.log(historiaResponse);
-        console.log(clientesResponse);
 
         const historiaData = historiaResponse.data.historiaClinica;
+        const idEspecie = historiaData.especie;
 
         const [especies, razas] = await Promise.all([
           obtenerEspecies(),
-          obtenerRazas(historiaData.especie),
+          obtenerRazas(idEspecie),
         ]);
 
+        /*
+        const especies = await obtenerEspecies();
+        const razas = await obtenerRazas(idEspecie);
+ */
         const especieEncontrada = especies.find(
           (item) => Number(item.id) === Number(historiaData.especie),
         );
@@ -77,7 +80,7 @@ export default function HistoriasClinicas() {
         );
 
         const cliente = clientesResponse.data.clientes.find(
-          (item) => item.id === Number(historiaData.dueño),
+          (item) => Number(item.id) === Number(historiaData.dueño),
         );
 
         setHistoria({

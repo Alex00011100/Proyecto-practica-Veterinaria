@@ -41,9 +41,10 @@ export default function Mascotas() {
           }),
           obtenerEspecies(),
         ]);
-
-      setMascotas(mascotasResponse.data.mascotas ?? []);
-      setClientes(clientesResponse.data.clientes ?? []);
+      const mascotasData = mascotasResponse.data.mascotas ?? [];
+      const clientesData = clientesResponse.data.clientes ?? [];
+      setMascotas(mascotasData);
+      setClientes(clientesData);
       setEspecies(especiesData);
 
       //consultamos las razas de cada especie presente en las mascotas.
@@ -80,7 +81,7 @@ export default function Mascotas() {
   }, []);
 
   const obtenerDueño = (idCliente) => {
-    const cliente = clientes.find((item) => item.id === idCliente);
+    const cliente = clientes.find((item) => Number(item.id) === Number(idCliente));
     return cliente
       ? `${cliente.nombre} ${cliente.apellido}`
       : "Dueño no disponible";
