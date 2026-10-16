@@ -6,6 +6,7 @@ import FormularioConsulta from "../../components/FormularioConsulta";
 import DetalleConsulta from "../../components/DetalleConsulta";
 import "../comercial/Productos.css";
 import "./HistoriasClinicas.css";
+import { obtenerEspecies, obtenerRazas } from "../../service/especiesService";
 
 const formatearFecha = (fecha) => {
   if (!fecha) return "-";
@@ -61,12 +62,28 @@ export default function HistoriasClinicas() {
         console.log(clientesResponse);
 
         const historiaData = historiaResponse.data.historiaClinica;
+
+        const [especies, razas] = await Promise.all([
+          obtenerEspecies(),
+          obtenerRazas(historiaData.especie),
+        ]);
+
+        const especieEncontrada = especies.find(
+          (item) => Number(item.id) === Number(historiaData.especie),
+        );
+
+        const razaEncontrada = razas.find(
+          (item) => Number(item.id) === Number(historiaData.raza),
+        );
+
         const cliente = clientesResponse.data.clientes.find(
           (item) => item.id === Number(historiaData.dueño),
         );
 
         setHistoria({
           ...historiaData,
+          especie: especieEncontrada?.nombre ?? "-",
+          raza: razaEncontrada?.nombre ?? "-",
           dueño: cliente
             ? `${cliente.nombre} ${cliente.apellido}`
             : "Dueño no disponible",

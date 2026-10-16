@@ -6,6 +6,7 @@ import FormularioNuevaMascota from "../../components/FormularioNuevaMascota";
 import DetalleMascota from "../../components/DetalleMascota";
 import "../comercial/Productos.css";
 import "./Mascotas.css";
+import { obtenerEspecies, obtenerRazas } from "../../service/especiesService";
 
 export default function Mascotas() {
   const navigate = useNavigate();
@@ -17,6 +18,9 @@ export default function Mascotas() {
   const [busqueda, setBusqueda] = useState("");
   const [cargando, setCargando] = useState(true);
 
+  const [especies, setEspecies] = useState([]);
+  const [razas, setRazas] = useState([]);
+
   const abrirModalCrear = () => setModalCrearAbierto(true);
   const cerrarModalCrear = () => {
     setModalCrearAbierto(false);
@@ -27,17 +31,42 @@ export default function Mascotas() {
     setCargando(true);
 
     try {
-      const [mascotasResponse, clientesResponse] = await Promise.all([
-        axios.get("http://localhost:3000/mascotas", { withCredentials: true }),
-        axios.get("http://localhost:3000/clientes", { withCredentials: true }),
-      ]);
+      const [mascotasResponse, clientesResponse, especiesData] =
+        await Promise.all([
+          axios.get("http://localhost:3000/mascotas", {
+            withCredentials: true,
+          }),
+          axios.get("http://localhost:3000/clientes", {
+            withCredentials: true,
+          }),
+          obtenerEspecies(),
+        ]);
 
       setMascotas(mascotasResponse.data.mascotas ?? []);
       setClientes(clientesResponse.data.clientes ?? []);
+      setEspecies(especiesData);
+
+      //consultamos las razas de cada especie presente en las mascotas.
+      const idsEspecies = [
+        ...new Set(
+          mascotasData
+            .map((mascota) => mascota.id_especie)
+            .filter((id) => id != null)
+            .map(Number),
+        ),
+      ];
+
+      const resultadosRazas = await Promise.all(
+        idsEspecies.map((idEspecie) => obtenerRazas(idEspecie)),
+      );
+
+      setRazas(resultadosRazas.flat());
     } catch (error) {
       if (error.response?.status === 404) {
-        setMascotas([])
+        setMascotas([]);
         setClientes([]);
+        setEspecies([]);
+        setRazas([]);
       } else {
         console.error("Error al cargar mascotas o clientes:", error);
       }
@@ -55,6 +84,20 @@ export default function Mascotas() {
     return cliente
       ? `${cliente.nombre} ${cliente.apellido}`
       : "Dueño no disponible";
+  };
+
+  const obtenerNombreEspecie = (idEspecie) => {
+    const especie = especies.find(
+      (item) => Number(item.id) === Number(idEspecie),
+    );
+
+    return especie?.nombre ?? "-";
+  };
+
+  const obtenerNombreRaza = (idRaza) => {
+    const raza = razas.find((item) => Number(item.id) === Number(idRaza));
+
+    return raza?.nombre ?? "-";
   };
 
   const abrirDetalle = (mascota) => {
@@ -109,8 +152,8 @@ export default function Mascotas() {
               {mascotasFiltradas.map((mascota) => (
                 <tr key={mascota.id}>
                   <td>{mascota.nombre}</td>
-                  <td>{mascota.especie}</td>
-                  <td>{mascota.raza || "-"}</td>
+                  <td>{obtenerNombreEspecie(mascota.id_especie)}</td>
+                  <td>{obtenerNombreRaza(mascota.id_raza)}</td>
                   <td>{obtenerDueño(mascota.id_cliente)}</td>
                   <td>
                     <button
@@ -123,7 +166,9 @@ export default function Mascotas() {
                   <td>
                     <button
                       className="btn-editar"
-                      onClick={() => navigate(`/historias-clinicas/${mascota.id}`)}
+                      onClick={() =>
+                        navigate(`/historias-clinicas/${mascota.id}`)
+                      }
                     >
                       Ver historia
                     </button>
@@ -151,8 +196,20 @@ export default function Mascotas() {
         onClose={() => setModalDetalleAbierto(false)}
       >
         <DetalleMascota
-          mascota={mascotaSeleccionada}
-          dueño={mascotaSeleccionada && obtenerDueño(mascotaSeleccionada.id_cliente)}
+          mascota={
+            mascotaSeleccionada
+              ? {
+                  ...mascotaSeleccionada,
+                  especie: obtenerNombreEspecie(mascotaSeleccionada.id_especie),
+                  raza: obtenerNombreRaza(mascotaSeleccionada.id_raza),
+                }
+              : null
+          }
+          dueño={
+            mascotaSeleccionada
+              ? obtenerDueño(mascotaSeleccionada.id_cliente)
+              : ""
+          }
         />
       </Modal>
     </section>

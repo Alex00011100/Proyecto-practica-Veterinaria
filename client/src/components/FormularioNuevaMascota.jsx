@@ -11,8 +11,8 @@ export default function FormularioNuevaMascota({ onClose }) {
   const [errorDueños, setErrorDueños] = useState("");
   const [mascota, setMascota] = useState({
     nombre: "",
-    especie: "",
-    raza: "",
+    id_especie: "",
+    id_raza: "",
     fecha_nacimiento: "",
     genero: "",
     numero_chip: "",
@@ -92,8 +92,8 @@ export default function FormularioNuevaMascota({ onClose }) {
 
     if (
       !mascota.nombre.trim() ||
-      !mascota.especie.trim() ||
-      !mascota.raza.trim() ||
+      !mascota.id_especie ||
+      !mascota.id_raza ||
       !mascota.fecha_nacimiento ||
       !mascota.genero
     ) {
@@ -103,10 +103,15 @@ export default function FormularioNuevaMascota({ onClose }) {
 
     const mascotaFormateada = {
       id_cliente: Number(idCliente),
-      ...mascota,
+      nombre: mascota.nombre,
+      id_especie: Number(mascota.id_especie),
+      id_raza: Number(mascota.id_raza),
+      fecha_nacimiento: mascota.fecha_nacimiento,
+      genero: mascota.genero,
       peso: null,
       activo: true,
       numero_chip: tieneChip ? mascota.numero_chip || null : null,
+      observaciones: mascota.observaciones,
     };
 
     try {
@@ -132,8 +137,8 @@ export default function FormularioNuevaMascota({ onClose }) {
 
     setMascota((actual) => ({
       ...actual,
-      especie: especieSeleccionada?.nombre || "",
-      raza: "",
+      id_especie: especieSeleccionada?.id || "",
+      id_raza: "",
     }));
 
     setRazas([]);
@@ -150,6 +155,17 @@ export default function FormularioNuevaMascota({ onClose }) {
     } catch {
       setRazas([]);
     }
+  };
+
+  const cambiarRaza = (event) => {
+    const idRaza = event.target.value;
+    const razaSeleccionada = razas.find((raza) => String(raza.id) === idRaza);
+
+    setMascota((actual) => ({
+      ...actual,
+      raza: razaSeleccionada?.nombre || "",
+      id_raza: razaSeleccionada ? Number(razaSeleccionada.id) : "",
+    }));
   };
 
   return (
@@ -176,10 +192,7 @@ export default function FormularioNuevaMascota({ onClose }) {
             <select
               className="form-control"
               id="especie"
-              value={
-                especies.find((especie) => especie.nombre === mascota.especie)
-                  ?.id
-              }
+              value={mascota.id_especie}
               onChange={cambiarEspecie}
               required
             >
@@ -199,14 +212,14 @@ export default function FormularioNuevaMascota({ onClose }) {
               className="form-control"
               id="raza"
               name="raza"
-              value={mascota.raza}
-              onChange={handleChange}
-              disabled={!mascota.especie || razas.length === 0}
+              value={mascota.id_raza}
+              onChange={cambiarRaza}
+              disabled={!mascota.id_especie || razas.length === 0}
               required
             >
               <option value="">Seleccione una raza</option>
               {razas.map((raza) => (
-                <option key={raza.id} value={raza.nombre}>
+                <option key={raza.id} value={raza.id}>
                   {raza.nombre}
                 </option>
               ))}
