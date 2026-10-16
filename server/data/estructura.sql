@@ -245,6 +245,7 @@ CREATE TABLE mascotas (
     id SERIAL PRIMARY KEY,
     id_cliente INTEGER NOT NULL,
     nombre VARCHAR(100) NOT NULL,
+    id_especie INTEGER NOT NULL,
     id_raza INTEGER,
     fecha_nacimiento DATE,
     peso DECIMAL(5,2),
@@ -255,20 +256,23 @@ CREATE TABLE mascotas (
     activo BOOLEAN DEFAULT TRUE,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cliente_mascota FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_mascota_raza FOREIGN KEY (id_raza) REFERENCES razas(id) ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT fk_mascota_raza FOREIGN KEY (id_raza) REFERENCES razas(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT fk_mascota_especie FOREIGN KEY (id_especie) REFERENCES especies(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- Inserción de Mascotas de Prueba
-INSERT INTO mascotas (id_cliente, nombre, id_raza, fecha_nacimiento, peso, genero, alergias, observaciones, numero_chip) VALUES 
+INSERT INTO mascotas (id_cliente, nombre, id_especie, id_raza, fecha_nacimiento, peso, genero, alergias, observaciones, numero_chip) VALUES 
 (
     (SELECT id FROM clientes WHERE dni = '38444555' LIMIT 1), 
     'Roko', 
+    (SELECT id FROM especies WHERE nombre = 'Perro'),
     (SELECT id FROM razas WHERE nombre = 'Mestizo / Criollo' AND id_especie = (SELECT id FROM especies WHERE nombre = 'Perro')), 
     '2020-05-15', 20.50, 'Macho', 'Ninguna, es una bestia', 'Le falta un ojo', '012345678912345'
 ),
 (
     (SELECT id FROM clientes WHERE dni = '40111222' LIMIT 1), 
     'Michi', 
+    (SELECT id FROM especies WHERE nombre = 'Gato'),
     (SELECT id FROM razas WHERE nombre = 'Común Europeo / Mestizo' AND id_especie = (SELECT id FROM especies WHERE nombre = 'Gato')), 
     '2022-11-10', 3.80, 'Hembra', 'Alergia a la penicilina', 'Le falta un pie', '123456789012345'
 );
