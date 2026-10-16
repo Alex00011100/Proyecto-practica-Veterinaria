@@ -38,15 +38,13 @@ const eliminarClienteADB = async (id) => {
     return rows[0];
 }
 
-const guardarTurno = async (turno) => {
-    const {mascota_id, nombre_contacto,telefono_contacto, veterinario_id}
-}
+
 
 export default {
     obtenerListaClientes,
     añadirClienteADB,
     editarClienteADB,
     eliminarClienteADB,
-    objeterRegistroVentaPorCliente,
-    guardarTurno
+    objeterRegistroVentaPorCliente
+  
 };
