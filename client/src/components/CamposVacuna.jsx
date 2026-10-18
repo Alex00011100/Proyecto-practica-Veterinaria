@@ -9,7 +9,12 @@ const categorias_atencion = [
   "Servicios Clínicos y Estética",
 ];
 
-export default function CamposVacuna({ valor, onChange, prefijo = "vacuna" }) {
+export default function CamposVacuna({
+  valor,
+  onChange,
+  onProductosChange,
+  prefijo = "vacuna",
+}) {
   const [categorias, setCategorias] = useState([]);
   const [errorCategorias, setErrorCategorias] = useState("");
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
@@ -76,30 +81,41 @@ export default function CamposVacuna({ valor, onChange, prefijo = "vacuna" }) {
   };
 
   const seleccionarProducto = (producto) => {
-    setProductosSeleccionados((actuales) =>
-      actuales.some((item) => item.id === producto.id)
-        ? actuales
-        : [...actuales, { ...producto, cantidad: 1 }],
-    );
+    setProductosSeleccionados((actuales) => {
+      if (actuales.some((item) => item.id === producto.id)) {
+        return actuales;
+      }
+
+      const nuevos = [...actuales, { ...producto, cantidad: 1 }];
+      onProductosChange?.(nuevos);
+      return nuevos;
+    });
+
     setBusquedaProducto("");
     setMostrarSugerencias(false);
   };
 
   const cambiarCantidad = (id, cantidad) => {
     const cantidadValida = Math.max(1, Number.parseInt(cantidad, 10) || 1);
-    setProductosSeleccionados((actuales) =>
-      actuales.map((producto) =>
+
+    setProductosSeleccionados((actuales) => {
+      const nuevos = actuales.map((producto) =>
         producto.id === id
           ? { ...producto, cantidad: cantidadValida }
           : producto,
-      ),
-    );
+      );
+
+      onProductosChange?.(nuevos);
+      return nuevos;
+    });
   };
 
   const quitarProducto = (id) => {
-    setProductosSeleccionados((actuales) =>
-      actuales.filter((producto) => producto.id !== id),
-    );
+    setProductosSeleccionados((actuales) => {
+      const nuevos = actuales.filter((producto) => producto.id !== id);
+      onProductosChange?.(nuevos);
+      return nuevos;
+    });
   };
 
   return (
@@ -149,7 +165,10 @@ export default function CamposVacuna({ valor, onChange, prefijo = "vacuna" }) {
               ) : (
                 productosCoincidentes.map((producto) => (
                   <li key={producto.id} className="cf-sugerencia">
-                    <button type="button" onClick={() => seleccionarProducto(producto)}>
+                    <button
+                      type="button"
+                      onClick={() => seleccionarProducto(producto)}
+                    >
                       {producto.nombre}
                       {producto.marca ? ` - ${producto.marca}` : ""}
                     </button>
@@ -169,14 +188,14 @@ export default function CamposVacuna({ valor, onChange, prefijo = "vacuna" }) {
               <th>Producto</th>
               <th>Cantidad</th>
               <th>Precio de venta</th>
-              <th>Subtotal</th>
+              {/** <th>Subtotal</th> */}
               <th aria-label="Acciones"></th>
             </tr>
           </thead>
           <tbody>
             {productosSeleccionados.length === 0 ? (
               <tr>
-                <td colSpan="6" className="cf-insumo-vacio">
+                <td colSpan="5" className="cf-insumo-vacio">
                   Aún no hay productos seleccionados.
                 </td>
               </tr>
@@ -206,6 +225,7 @@ export default function CamposVacuna({ valor, onChange, prefijo = "vacuna" }) {
                       }
                     />
                   </td>
+                  {/** 
                   <td>
                     ${(Number(producto.precio_venta) || 0).toLocaleString("es-AR", {
                       minimumFractionDigits: 2,
@@ -220,7 +240,7 @@ export default function CamposVacuna({ valor, onChange, prefijo = "vacuna" }) {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
-                  </td>
+                  </td>*/}
                   <td>
                     <button
                       type="button"
@@ -235,6 +255,7 @@ export default function CamposVacuna({ valor, onChange, prefijo = "vacuna" }) {
               ))
             )}
           </tbody>
+          {/** 
           <tfoot>
             <tr>
               <th colSpan="4">Total</th>
@@ -246,10 +267,10 @@ export default function CamposVacuna({ valor, onChange, prefijo = "vacuna" }) {
                 })}
               </th>
             </tr>
-          </tfoot>
+          </tfoot>*/}
         </table>
       </div>
-
+      {/**
       <div className="cf-fila">
         <div className="cf-campo">
           <label htmlFor={`${prefijo}-fecha`}>
@@ -275,8 +296,8 @@ export default function CamposVacuna({ valor, onChange, prefijo = "vacuna" }) {
             onChange={handleChange}
           />
         </div>
-      </div>
-
+      </div>*/}
+      {/**  
       <div className="cf-campo">
         <label htmlFor={`${prefijo}-obs`}>Observaciones de la vacuna</label>
         <textarea
@@ -285,7 +306,7 @@ export default function CamposVacuna({ valor, onChange, prefijo = "vacuna" }) {
           value={valor.observaciones_vacuna}
           onChange={handleChange}
         ></textarea>
-      </div>
+      </div>*/}
     </>
   );
 }
