@@ -15,7 +15,9 @@ import turnosRoutes from './routes/turnos.routes.js';
 const app = express();
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: [process.env.FRONTEND_URL,  
+    'http://localhost:5173'
+  ],
   methods: ["GET", "POST", "PUT","PATCH", "DELETE"],
   credentials: true
 }));

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import './Login.css'
 import axios from "axios";
 import { useNavigate, Outlet } from "react-router-dom";
-import api from "../../config/api.js";
+import api from "../../../../server/src/config/api.js";
 
 
 export const VerificacionToken = () => {
