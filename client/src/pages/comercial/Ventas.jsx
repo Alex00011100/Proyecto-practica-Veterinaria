@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
-import api from "../../config/api.js";
+import api from "../../../config/api.js";
 import Modal from "../../components/Modal";
 import "./Ventas.css";
 import FormularioNuevaVenta from "../../components/FormularioNuevaVenta";
 
-const API_URL = "http://localhost:3000";
+//const API_URL = "http://localhost:3000";
 
 export default function Ventas() {
   const [ventas, setVentas] = useState([]);
@@ -44,7 +44,7 @@ export default function Ventas() {
     setLoading(true);
 
     try {
-      const response = await api.get(`${API_URL}/ventas/lista-ventas`, { withCredentials: true });
+      const response = await api.get(`ventas/lista-ventas`, { withCredentials: true });
 
       const listaVentas = response.data.ventas || [];
 
@@ -57,7 +57,7 @@ export default function Ventas() {
         listaVentas.map(async (venta) => {
           try {
             const res = await api.get(
-              `${API_URL}/ventas/detalles-venta/${venta.id}`, {withCredentials: true}
+              `ventas/detalles-venta/${venta.id}`, {withCredentials: true}
             );
 
             resumen[venta.id] = res.data.detalles || [];
@@ -87,7 +87,7 @@ export default function Ventas() {
 
     try {
       const res = await api.get(
-        `${API_URL}/ventas/detalles-venta/${venta.id}`,
+        `ventas/detalles-venta/${venta.id}`,
         { withCredentials: true }
       );
       setDetalleSeleccionado(res.data.detalles || []);

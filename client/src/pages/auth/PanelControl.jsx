@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import api from "../../config/api.js"
+import api from "../../../config/api.js"
 import Modal from '../../components/Modal.jsx'
 import FormularioAltaUsuario from '../../components/FormularioAltaUsuario.jsx'
 import './PanelControl.css'

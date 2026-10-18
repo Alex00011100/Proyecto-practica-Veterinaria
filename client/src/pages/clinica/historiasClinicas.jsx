@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api from "../../config/api.js";
+import api from "../../../config/api.js";
 import { useParams } from "react-router-dom";
 import Modal from "../../components/Modal";
 import FormularioConsulta from "../../components/FormularioConsulta";
