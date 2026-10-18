@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from "../../config/api.js"
+import api from "../../../config/api.js"
 import Modal from '../../components/Modal.jsx'
 import FormularioEdicionUsuario from '../../components/FormularioEdicionUsuario.jsx'
 import './Perfil.css'

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import api from '../../config/api.js'
+import api from '../../../config/api.js'
 import FormularioClientes from '../../components/FormularioClientes'
 import FichaCliente from '../../components/FichaCliente'
 import HistorialCompras from '../../components/HistorialCompras'

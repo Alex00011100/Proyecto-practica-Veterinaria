@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import api from "../../config/api.js";
+import api from "../../../config/api.js";
 import Modal from "../../components/Modal";
 import "./Ventas.css";
 import FormularioNuevaVenta from "../../components/FormularioNuevaVenta";

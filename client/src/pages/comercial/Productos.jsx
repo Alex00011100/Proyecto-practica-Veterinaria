@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import api from '../../config/api.js'
+import api from '../../../config/api.js'
 import FormularioProductos from '../../components/FormularioProductos'
 import FormularioEdicionProductos from '../../components/FormularioEdicionProducto'
 import Modal from '../../components/Modal'

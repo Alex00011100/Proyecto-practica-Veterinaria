@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../../config/api.js";
+import api from "../../../config/api.js";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
 import FormularioNuevaMascota from "../../components/FormularioNuevaMascota";
