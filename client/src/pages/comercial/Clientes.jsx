@@ -6,9 +6,9 @@ import HistorialCompras from '../../components/HistorialCompras'
 import Modal from '../../components/Modal'
 import './Clientes.css'
 
-const CLIENTES_URL = 'http://localhost:3000/clientes'
-const MASCOTAS_URL = 'http://localhost:3000/mascotas'
-const VENTAS_URL = 'http://localhost:3000/ventas/lista-ventas'
+const CLIENTES_URL = 'clientes'
+const MASCOTAS_URL = 'mascotas'
+const VENTAS_URL = 'ventas/lista-ventas'
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([])

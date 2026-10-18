@@ -6,7 +6,7 @@ import Modal from '../../components/Modal'
 import FormularioLote from '../../components/FormularioLote'
 import './Productos.css'
 
-const API_URL = 'http://localhost:3000/products'
+const API_URL = 'products'
 
 export default function Productos() {
   const [vistaLotes, setVistaLotes] = useState(false)
