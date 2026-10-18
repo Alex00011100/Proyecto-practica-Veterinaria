@@ -21,8 +21,8 @@ const userLogin = async (req, res) => {
             const token = jwt.sign({ id: user.id, usuario: user.usuario, rol: user.id_rol }, JWT_SECRET, { expiresIn: '1d' });//perdon matu cambie "rol: user.rol" por "rol: user.id_rol"
             res.cookie("token", token, {
                 httpOnly: true,
-                secure: false, 
-                sameSite: "lax",
+                secure: process.env.NODE_ENV === 'production', 
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 maxAge: 24 * 60 * 60 * 1000 
             });
             res.status(200).json({ message: 'Logueado Correctamente', user: { id: user.id, usuario: user.usuario, rol: user.rol }, token });
@@ -105,8 +105,8 @@ const editarDatosPropios = async (req, res) => {
 const cerrarSesion = (req, res) => {
     res.clearCookie("token", {
         httpOnly: true,
-        secure: false, 
-        sameSite: "lax"
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     });
     return res.status(200).json({ message: 'Sesión cerrada correctamente' });
 };
