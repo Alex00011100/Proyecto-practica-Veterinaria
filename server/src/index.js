@@ -10,6 +10,7 @@ import clientesRoutes from './routes/clientes.routes.js'
 import mascotasRoutes from './routes/mascotas.routes.js'
 import especiesRoutes from "./routes/especies.routes.js"
 import estudiosRoutes from "./routes/estudios.routes.js"
+import turnosRoutes from './routes/turnos.routes.js';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/clientes', clientesRoutes);
 app.use('/mascotas', mascotasRoutes);
 app.use("/especies", especiesRoutes);
 app.use("/estudios", estudiosRoutes);
+app.use("/turnos", turnosRoutes);
 
 const PORT = process.env.PORT || 3000;
 
