@@ -100,4 +100,75 @@ const obtenerRegistroVentaPorCliente = async (id_cliente) => {
     return rows
 }
 
-export { obtenerLotesVentas, actualizarStockLote, eliminarLoteVacio, añadirVenta, detallesVenta, filtrarProductoPorID, obtenerListaVentas, obtenerDetallesVenta, filtrarServiciosPorId, obtenerVentaPorFechaActual, obtenerRegistroVentaPorCliente }
+const generarReporteVentas = async () => {
+    const {rows} = await db.query(
+        `SELECT v.id, v.id_cliente, v.fecha_venta, v.total, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre, metodo_pago
+        FROM ventas v
+        JOIN clientes c ON v.id_cliente = c.id
+        JOIN usuarios u ON v.id_usuario = u.id
+        ORDER BY v.fecha_venta DESC`
+    )
+    return rows
+}
+
+const generarReporteVentasPorDia = async (fecha) => {
+    const {rows} = await db.query(
+        `SELECT
+            DATE_TRUNC('HOUR', v.fecha_venta) AS fecha,
+            COUNT(*) AS total_ventas,
+            SUM(CASE WHEN v.metodo_pago = 'efectivo' THEN v.total ELSE 0 END) AS efectivo,
+            SUM(CASE WHEN v.metodo_pago = 'tarjeta' THEN v.total ELSE 0 END) AS tarjeta,
+            SUM(CASE WHEN v.metodo_pago = 'transferencia' THEN v.total ELSE 0 END) AS transferencia,
+            SUM(CASE WHEN v.metodo_pago = 'efectivo' THEN 1 ELSE 0 END) AS total_efectivo,
+            SUM(CASE WHEN v.metodo_pago = 'tarjeta' THEN 1 ELSE 0 END) AS total_tarjeta,
+            SUM(CASE WHEN v.metodo_pago = 'transferencia' THEN 1 ELSE 0 END) AS total_transferencia
+        FROM ventas v
+        WHERE DATE(v.fecha_venta) = $1
+        GROUP BY fecha
+        ORDER BY fecha ASC
+    `, [fecha]
+    )
+    return rows
+}
+
+const generarReporteVentasPorSemana = async (fecha_inicio, fecha_fin) => {
+    const {rows} = await db.query(
+        `SELECT
+            DATE_TRUNC('DAY', v.fecha_venta) AS fecha,
+            COUNT(*) AS total_ventas,
+            SUM(CASE WHEN v.metodo_pago = 'efectivo' THEN v.total ELSE 0 END) AS efectivo,
+            SUM(CASE WHEN v.metodo_pago = 'tarjeta' THEN v.total ELSE 0 END) AS tarjeta,
+            SUM(CASE WHEN v.metodo_pago = 'transferencia' THEN v.total ELSE 0 END) AS transferencia,
+            SUM(CASE WHEN v.metodo_pago = 'efectivo' THEN 1 ELSE 0 END) AS total_efectivo,
+            SUM(CASE WHEN v.metodo_pago = 'tarjeta' THEN 1 ELSE 0 END) AS total_tarjeta,
+            SUM(CASE WHEN v.metodo_pago = 'transferencia' THEN 1 ELSE 0 END) AS total_transferencia
+        FROM ventas v
+        WHERE DATE(v.fecha_venta) BETWEEN $1 AND $2
+        GROUP BY fecha
+        ORDER BY fecha ASC
+    `, [fecha_inicio, fecha_fin]
+    )
+    return rows
+}
+
+const generarReporteVentasPorMes = async (fecha_inicio, fecha_fin) => {
+    const {rows} = await db.query(
+        `SELECT
+            DATE_TRUNC('WEEK', v.fecha_venta) AS fecha,
+            COUNT(*) AS total_ventas,
+            SUM(CASE WHEN v.metodo_pago = 'efectivo' THEN v.total ELSE 0 END) AS efectivo,
+            SUM(CASE WHEN v.metodo_pago = 'tarjeta' THEN v.total ELSE 0 END) AS tarjeta,
+            SUM(CASE WHEN v.metodo_pago = 'transferencia' THEN v.total ELSE 0 END) AS transferencia,
+            SUM(CASE WHEN v.metodo_pago = 'efectivo' THEN 1 ELSE 0 END) AS total_efectivo,
+            SUM(CASE WHEN v.metodo_pago = 'tarjeta' THEN 1 ELSE 0 END) AS total_tarjeta,
+            SUM(CASE WHEN v.metodo_pago = 'transferencia' THEN 1 ELSE 0 END) AS total_transferencia
+        FROM ventas v
+        WHERE DATE(v.fecha_venta) BETWEEN $1 AND $2
+        GROUP BY fecha
+        ORDER BY fecha ASC
+    `, [fecha_inicio, fecha_fin]
+    )
+    return rows
+}
+
+export { obtenerLotesVentas, actualizarStockLote, eliminarLoteVacio, añadirVenta, detallesVenta, filtrarProductoPorID, obtenerListaVentas, obtenerDetallesVenta, filtrarServiciosPorId, obtenerVentaPorFechaActual, obtenerRegistroVentaPorCliente, generarReporteVentas, generarReporteVentasPorDia, generarReporteVentasPorSemana, generarReporteVentasPorMes }

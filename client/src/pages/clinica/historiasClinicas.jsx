@@ -6,6 +6,8 @@ import FormularioConsulta from "../../components/FormularioConsulta";
 import DetalleConsulta from "../../components/DetalleConsulta";
 import "../comercial/Productos.css";
 import "./HistoriasClinicas.css";
+import { obtenerEspecies, obtenerRazas } from "../../service/especiesService";
+import FormularioEdicionConsulta from "../../components/FormularioEdicionConsulta";
 
 const formatearFecha = (fecha) => {
   if (!fecha) return "-";
@@ -41,6 +43,9 @@ export default function HistoriasClinicas() {
   const [error, setError] = useState("");
   const [modalConsultaAbierto, setModalConsultaAbierto] = useState(false);
   const [consultaSeleccionada, setConsultaSeleccionada] = useState(null);
+  const [modalEdicionAbierto, setModalEdicionAbierto] = useState(false);
+  const [consultaEdicionSeleccionada, setConsultaEdicionSeleccionada] =
+    useState(null);
 
   // Cambiar este contador vuelve a pedir la historia (se usa después de guardar)
   const [version, setVersion] = useState(0);
@@ -59,12 +64,33 @@ export default function HistoriasClinicas() {
         ]);
 
         const historiaData = historiaResponse.data.historiaClinica;
+        const idEspecie = historiaData.especie;
+
+        const [especies, razas] = await Promise.all([
+          obtenerEspecies(),
+          obtenerRazas(idEspecie),
+        ]);
+
+        /*
+        const especies = await obtenerEspecies();
+        const razas = await obtenerRazas(idEspecie);
+ */
+        const especieEncontrada = especies.find(
+          (item) => Number(item.id) === Number(historiaData.especie),
+        );
+
+        const razaEncontrada = razas.find(
+          (item) => Number(item.id) === Number(historiaData.raza),
+        );
+
         const cliente = clientesResponse.data.clientes.find(
-          (item) => item.id === Number(historiaData.dueño),
+          (item) => Number(item.id) === Number(historiaData.dueño),
         );
 
         setHistoria({
           ...historiaData,
+          especie: especieEncontrada?.nombre ?? "-",
+          raza: razaEncontrada?.nombre ?? "-",
           dueño: cliente
             ? `${cliente.nombre} ${cliente.apellido}`
             : "Dueño no disponible",
@@ -110,6 +136,11 @@ export default function HistoriasClinicas() {
   const consultas = [...(historia.consultas ?? [])].sort(
     porFechaDescendente("fecha_consulta"),
   );
+
+  const limitarTexto = (nombre) => {
+    const texto = nombre || "-";
+    return texto.length > 40 ? `${texto.slice(0, 39)}…` : texto;
+  };
 
   return (
     <section className="page-shell historia-clinica-page">
@@ -171,6 +202,11 @@ export default function HistoriasClinicas() {
         {vacunas.length ? (
           <div className="historia-vacunas-wrapper">
             <table className="historia-vacunas-tabla">
+              <colgroup>
+                <col className="historia-vacunas-col-nombre" />
+                <col className="historia-vacunas-col-fecha" />
+                <col className="historia-vacunas-col-proxima" />
+              </colgroup>
               <thead>
                 <tr>
                   <th scope="col">Vacuna</th>
@@ -184,9 +220,11 @@ export default function HistoriasClinicas() {
 
                   return (
                     <tr
-                      key={`${vacuna.nombre_vacuna}-${vacuna.fecha_aplicacion}-${index}`}
+                      key={`${vacuna.id}-${vacuna.fecha_aplicacion}-${index}`}
                     >
-                      <td>{vacuna.nombre_vacuna || "-"}</td>
+                      <td title={vacuna.nombre_vacuna || ""}>
+                        {limitarTexto(vacuna.nombre_vacuna)}
+                      </td>
                       <td>{formatearFecha(vacuna.fecha_aplicacion)}</td>
                       <td>
                         {vacuna.proxima_dosis ? (
@@ -227,13 +265,21 @@ export default function HistoriasClinicas() {
         </div>
         {consultas.length ? (
           <div className="tabla-wrapper">
-            <table className="productos-tabla">
+            <table className="productos-tabla historia-consultas-tabla">
+              <colgroup>
+                <col className="consultas-col-fecha" />
+                <col className="consultas-col-motivo" />
+                <col className="consultas-col-veterinario" />
+                <col className="consultas-col-detalles" />
+                <col className="consultas-col-detalles" />
+              </colgroup>
               <thead>
                 <tr>
                   <th scope="col">Fecha</th>
-                  <th scope="col">Descripción</th>
+                  <th scope="col">Motivo</th>
                   <th scope="col">Veterinario</th>
                   <th scope="col">Detalles</th>
+                  <th scope="col">Editar</th>
                 </tr>
               </thead>
               <tbody>
@@ -244,8 +290,8 @@ export default function HistoriasClinicas() {
                         {formatearFecha(consulta.fecha_consulta)}
                       </time>
                     </td>
-                    <td>
-                      <strong>{consulta.motivo}</strong>
+                    <td title={consulta.motivo || ""}>
+                      <strong>{limitarTexto(consulta.motivo, 30)}</strong>
                     </td>
                     <td>{consulta.nombre_veterinario || "No informado"}</td>
                     <td>
@@ -254,7 +300,19 @@ export default function HistoriasClinicas() {
                         type="button"
                         onClick={() => setConsultaSeleccionada(consulta.id)}
                       >
-                        Ver detalles
+                        Detalles
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        className="btn-primary"
+                        type="button"
+                        onClick={() => {
+                          setConsultaEdicionSeleccionada(consulta);
+                          setModalEdicionAbierto(true);
+                        }}
+                      >
+                        Editar
                       </button>
                     </td>
                   </tr>
@@ -263,7 +321,9 @@ export default function HistoriasClinicas() {
             </table>
           </div>
         ) : (
-          <p className="historia-vacunas-vacio">No hay consultas registradas.</p>
+          <p className="historia-vacunas-vacio">
+            No hay consultas registradas.
+          </p>
         )}
       </section>
 
@@ -287,6 +347,28 @@ export default function HistoriasClinicas() {
           <DetalleConsulta
             idConsulta={consultaSeleccionada}
             onClose={() => setConsultaSeleccionada(null)}
+          />
+        )}
+      </Modal>
+
+      {/*Modal para abrir el formulario de edición */}
+      <Modal
+        isOpen={modalEdicionAbierto}
+        onClose={() => {
+          setModalEdicionAbierto(false);
+          setConsultaEdicionSeleccionada(null);
+        }}
+      >
+        {consultaEdicionSeleccionada && (
+          <FormularioEdicionConsulta
+            idMascota={historia.id}
+            consulta={consultaEdicionSeleccionada}
+            nombreMascota={historia.nombre}
+            onClose={() => {
+              setModalEdicionAbierto(false);
+              setConsultaEdicionSeleccionada(null);
+            }}
+            onGuardado={recargarHistoria}
           />
         )}
       </Modal>

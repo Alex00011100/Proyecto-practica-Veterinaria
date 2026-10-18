@@ -6,7 +6,11 @@ import {obtenerLotesVentas,
      detallesVenta, 
      obtenerListaVentas,
       obtenerDetallesVenta, 
-      filtrarServiciosPorId} from '../models/ventas.model.js'
+      filtrarServiciosPorId,
+      generarReporteVentas,
+      generarReporteVentasPorDia,
+      generarReporteVentasPorSemana,
+      generarReporteVentasPorMes} from '../models/ventas.model.js'
 import productModel from '../models/product.model.js'
 
 const descontarStock = async (req, res) => {
@@ -48,7 +52,6 @@ const registrarVenta = async (req, res) => {
     const fechaVenta = new Date(); // Obtener la fecha actual
     try {
         const venta = await añadirVenta(id_usuario, id_cliente, metodoPago, fechaVenta, total);
-        console.log('Venta registrada:', venta);
         if (!venta) {
             return res.status(500).json({ message: 'Error al registrar la venta' });
         }
@@ -128,6 +131,8 @@ const obtenerDetallesVentaController = async (req, res) => {
         console.error('Error al obtener los detalles de la venta:', error);
     }
 };
+    
+
 
 const obtenerRegistroVentaPorCliente = async (req, res) => {
     const { id_cliente } = req.params;
@@ -140,4 +145,48 @@ const obtenerRegistroVentaPorCliente = async (req, res) => {
     }
 };
 
-export { descontarStock, eliminarLoteVacio, registrarVenta, registrarDetallesVenta, listaVentas, obtenerDetallesVentaController, obtenerVentaPorFecha, obtenerRegistroVentaPorCliente };
+const reporteVentas = async (req, res) => {
+    try {
+        const reporte = await generarReporteVentas();
+        console.log(reporte)
+        res.status(200).json({ message: 'Reporte de ventas generado correctamente', reporte });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al generar el reporte de ventas', error });
+        console.error('Error al generar el reporte de ventas:', error);
+    }
+};
+
+const reporteVentasPorDia = async (req, res) => {
+    const { fecha } = req.query;
+    try {
+        const reporte = await generarReporteVentasPorDia(fecha);
+        res.status(200).json({ message: 'Reporte de ventas por día generado correctamente', reporte });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al generar el reporte de ventas por día', error });
+        console.error('Error al generar el reporte de ventas por día:', error);
+    }
+};
+
+const reporteVentasPorSemana = async (req, res) => {
+    const { fecha_inicio, fecha_fin } = req.query;
+    try {
+        const reporte = await generarReporteVentasPorSemana(fecha_inicio, fecha_fin);
+        res.status(200).json({ message: 'Reporte de ventas por semana generado correctamente', reporte });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al generar el reporte de ventas por semana', error });
+        console.error('Error al generar el reporte de ventas por semana:', error);
+    }
+};
+
+const reporteVentasPorMes = async (req, res) => {
+    const { fecha_inicio, fecha_fin } = req.query;
+    try {
+        const reporte = await generarReporteVentasPorMes(fecha_inicio, fecha_fin);
+        res.status(200).json({ message: 'Reporte de ventas por mes generado correctamente', reporte });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al generar el reporte de ventas por mes', error });
+        console.error('Error al generar el reporte de ventas por mes:', error);
+    }
+};
+
+export { descontarStock, eliminarLoteVacio, registrarVenta, registrarDetallesVenta, listaVentas, obtenerDetallesVentaController, obtenerVentaPorFecha, obtenerRegistroVentaPorCliente, reporteVentas, reporteVentasPorDia, reporteVentasPorSemana, reporteVentasPorMes };

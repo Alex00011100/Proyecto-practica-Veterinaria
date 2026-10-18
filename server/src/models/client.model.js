@@ -38,10 +38,13 @@ const eliminarClienteADB = async (id) => {
     return rows[0];
 }
 
+
+
 export default {
     obtenerListaClientes,
     añadirClienteADB,
     editarClienteADB,
     eliminarClienteADB,
     objeterRegistroVentaPorCliente
+  
 };

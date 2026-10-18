@@ -1,5 +1,5 @@
 -- 0. Limpieza de tablas pre-existentes
-DROP TABLE IF EXISTS vacunas CASCADE;
+
 DROP TABLE IF EXISTS estudios_adjuntos;
 DROP TABLE IF EXISTS detalle_consulta;
 DROP TABLE IF EXISTS consultas;
@@ -10,12 +10,15 @@ DROP TABLE IF EXISTS ventas;
 DROP TABLE IF EXISTS lotes; 
 DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS categorias;
+
+DROP TABLE IF EXISTS turnos;
 DROP TABLE IF EXISTS mascotas;
 DROP TABLE IF EXISTS razas;
 DROP TABLE IF EXISTS especies;
 DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS roles;
+
 -- 1. Creación de tabla de roles
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
@@ -41,8 +44,8 @@ INSERT INTO roles (nombre, descripcion) VALUES
 ('Administrativo/Vendedor', 'Control de inventario (stock), registro de ventas, facturación y atención en mostrador.');
 -- 4. Carga de Usuarios de Prueba
 INSERT INTO usuarios (nombre, usuario, email, password_hash, id_rol) VALUES 
-('Matias Picasso', 'Matias', 'rhagis@gmail.com', '$2b$10$sGBJ.aHYMLNw8OLnSjYLlO5Gmd36SfObDw0LipcPiVfjnR4qFXGTa', (SELECT id FROM roles WHERE nombre = 'Administrativo/Vendedor')),
-('Carlos Gómez', 'CarlitosVet', 'admin@veterinaria.com', 'admin123', (SELECT id FROM roles WHERE nombre = 'Administrador')),
+('Admin', 'admin', 'admin@veterinaria.com', '$2b$10$EIRiOPpgnwYrVw1So5bUguaeMbTycxndA.0C./ezIB93hcYWe12Ru', (SELECT id FROM roles WHERE nombre = 'Administrador')),
+('Carlos Gómez', 'CarlitosVet', 'carlos.gomez@veterinaria.com', 'admin123', (SELECT id FROM roles WHERE nombre = 'Administrador')),
 ('Dra. Laura Martínez', 'LauritaVet', 'laura.vet@veterinaria.com', '$2y$10$S9bB7X4mF8gH2jK1l3m4n5o6p7q8r9s...', (SELECT id FROM roles WHERE nombre = 'Veterinario')),
 ('Matias Silva', 'MatiVet', 'ventas@veterinaria.com', '$2y$10$U7vW8x9y0z1a2b3c4d5e6f7g8h9i0j...', (SELECT id FROM roles WHERE nombre = 'Administrativo/Vendedor'));
 -- 5. Tabla de clientes
@@ -242,6 +245,7 @@ CREATE TABLE mascotas (
     id SERIAL PRIMARY KEY,
     id_cliente INTEGER NOT NULL,
     nombre VARCHAR(100) NOT NULL,
+    id_especie INTEGER NOT NULL,
     id_raza INTEGER,
     fecha_nacimiento DATE,
     peso DECIMAL(5,2),
@@ -252,20 +256,23 @@ CREATE TABLE mascotas (
     activo BOOLEAN DEFAULT TRUE,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cliente_mascota FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_mascota_raza FOREIGN KEY (id_raza) REFERENCES razas(id) ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT fk_mascota_raza FOREIGN KEY (id_raza) REFERENCES razas(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT fk_mascota_especie FOREIGN KEY (id_especie) REFERENCES especies(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- Inserción de Mascotas de Prueba
-INSERT INTO mascotas (id_cliente, nombre, id_raza, fecha_nacimiento, peso, genero, alergias, observaciones, numero_chip) VALUES 
+INSERT INTO mascotas (id_cliente, nombre, id_especie, id_raza, fecha_nacimiento, peso, genero, alergias, observaciones, numero_chip) VALUES 
 (
     (SELECT id FROM clientes WHERE dni = '38444555' LIMIT 1), 
     'Roko', 
+    (SELECT id FROM especies WHERE nombre = 'Perro'),
     (SELECT id FROM razas WHERE nombre = 'Mestizo / Criollo' AND id_especie = (SELECT id FROM especies WHERE nombre = 'Perro')), 
     '2020-05-15', 20.50, 'Macho', 'Ninguna, es una bestia', 'Le falta un ojo', '012345678912345'
 ),
 (
     (SELECT id FROM clientes WHERE dni = '40111222' LIMIT 1), 
     'Michi', 
+    (SELECT id FROM especies WHERE nombre = 'Gato'),
     (SELECT id FROM razas WHERE nombre = 'Común Europeo / Mestizo' AND id_especie = (SELECT id FROM especies WHERE nombre = 'Gato')), 
     '2022-11-10', 3.80, 'Hembra', 'Alergia a la penicilina', 'Le falta un pie', '123456789012345'
 );
@@ -353,4 +360,15 @@ VALUES (
     (SELECT id FROM lotes WHERE codigo_lote = 'VAC-26-A' LIMIT 1),
     CURRENT_DATE + INTERVAL '1 year',
     'Toleró bien la aplicación sin reacciones adversas.'
+);
+-- 25. Tabla turnos
+CREATE TABLE turnos (
+    id SERIAL PRIMARY KEY,
+    nombre_contacto VARCHAR(100) NOT NULL,   -- Se usa solo si mascota_id es NULL (mascota nueva)
+    telefono_contacto VARCHAR(50) NOT NULL, -- Se usa solo si mascota_id es NULL (mascota nueva)
+    profesional_id INT REFERENCES usuarios(id) ON DELETE SET NULL, -- Profesional asignado (puede ser asignado después)
+    fecha_hora TIMESTAMP NOT NULL, -- Fecha y hora del turno
+    motivo VARCHAR(255) NOT NULL, -- Motivo de la consulta o atención
+    estado VARCHAR(30) DEFAULT 'pendiente', -- 'pendiente', 'cancelado', 'completado'
+    observaciones TEXT -- Algún detalle adicional sobre el turno
 );
