@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../config/api.js";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
 import FormularioNuevaMascota from "../../components/FormularioNuevaMascota";
@@ -33,10 +33,10 @@ export default function Mascotas() {
     try {
       const [mascotasResponse, clientesResponse, especiesData] =
         await Promise.all([
-          axios.get("http://localhost:3000/mascotas", {
+          api.get("mascotas", {
             withCredentials: true,
           }),
-          axios.get("http://localhost:3000/clientes", {
+          api.get("clientes", {
             withCredentials: true,
           }),
           obtenerEspecies(),

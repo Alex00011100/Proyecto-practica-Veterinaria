@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import api from "../../config/api.js";
 
-const API_URL = 'http://localhost:3000/clientes'
+// const API_URL = 'http://localhost:3000/clientes'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 
@@ -73,12 +74,10 @@ export default function FormularioClientes({ clienteInicial, onClose }) {
     setEnviando(true)
     try {
       if (esEdicion) {
-        await axios.put(`${API_URL}/editar/${clienteInicial.id}`, cliente, {
-          withCredentials: true,
-        })
+        await api.put(`clientes/editar/${clienteInicial.id}`, cliente)
         alert('Cliente actualizado correctamente.')
       } else {
-        await axios.post(`${API_URL}/add`, cliente, { withCredentials: true })
+        await api.post(`clientes/add`, cliente)
         alert('Cliente registrado correctamente.')
 
         setCliente({

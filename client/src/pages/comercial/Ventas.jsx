@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import api from "../../config/api.js";
 import Modal from "../../components/Modal";
 import "./Ventas.css";
 import FormularioNuevaVenta from "../../components/FormularioNuevaVenta";
@@ -44,7 +44,7 @@ export default function Ventas() {
     setLoading(true);
 
     try {
-      const response = await axios.get(`${API_URL}/ventas/lista-ventas`, { withCredentials: true });
+      const response = await api.get(`${API_URL}/ventas/lista-ventas`, { withCredentials: true });
 
       const listaVentas = response.data.ventas || [];
 
@@ -56,7 +56,7 @@ export default function Ventas() {
       await Promise.all(
         listaVentas.map(async (venta) => {
           try {
-            const res = await axios.get(
+            const res = await api.get(
               `${API_URL}/ventas/detalles-venta/${venta.id}`, {withCredentials: true}
             );
 
@@ -86,7 +86,7 @@ export default function Ventas() {
     setLoadingDetalle(true);
 
     try {
-      const res = await axios.get(
+      const res = await api.get(
         `${API_URL}/ventas/detalles-venta/${venta.id}`,
         { withCredentials: true }
       );

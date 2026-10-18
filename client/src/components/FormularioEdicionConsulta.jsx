@@ -4,6 +4,7 @@ import CamposVacuna from "./CamposVacuna.jsx";
 import { hoy, vacunaVacia } from "../utils/vacuna.js";
 import "./FormulariosClinicos.css";
 import { motivosConsulta } from "../utils/motivosConsulta.js";
+import api from "../../config/api.js";
 
 export default function FormularioEdicionConsulta({ idMascota, nombreMascota, onClose, onGuardado, consulta }) {
   const [formulario, setFormulario] = useState({
@@ -98,10 +99,9 @@ export default function FormularioEdicionConsulta({ idMascota, nombreMascota, on
     };
 
     try {
-      await axios.post(
-        "http://localhost:3000/mascotas/historia/consulta",//cambiar el metodo y la ruta para edicion de consulta
-        datos,
-        { withCredentials: true },
+      await api.post(
+        "mascotas/historia/consulta",//cambiar el metodo y la ruta para edicion de consulta
+        datos
       );
 
       await onGuardado?.();

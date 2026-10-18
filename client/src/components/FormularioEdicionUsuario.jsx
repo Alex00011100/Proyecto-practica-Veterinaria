@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import api from "../../config/api.js";
 
 const API_URL = 'http://localhost:3000/users'
 
@@ -48,15 +49,12 @@ export default function FormularioEdicionUsuario({
     try {
       setGuardando(true)
 
-      await axios.patch(
-        `${API_URL}/datos/${usuarioInicial.id}`,
+      await api.patch(
+        `users/datos/${usuarioInicial.id}`,
         {
           usuario: formulario.usuario,
           email: formulario.email,
           password: formulario.password || undefined,
-        },
-        {
-          withCredentials: true,
         }
       )
 
