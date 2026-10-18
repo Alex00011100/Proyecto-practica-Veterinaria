@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../../config/api.js'
 import FormularioClientes from '../../components/FormularioClientes'
 import FichaCliente from '../../components/FichaCliente'
 import HistorialCompras from '../../components/HistorialCompras'
@@ -29,15 +29,15 @@ export default function Clientes() {
     setLoading(true)
     try {
       const [resClientes, resMascotas, resVentas] = await Promise.all([
-        axios.get(CLIENTES_URL, { withCredentials: true }).catch((err) => {
+        api.get(CLIENTES_URL, { withCredentials: true }).catch((err) => {
           if (err.response?.status === 404) return { data: { clientes: [] } }
           throw err
         }),
-        axios.get(MASCOTAS_URL, { withCredentials: true }).catch((err) => {
+        api.get(MASCOTAS_URL, { withCredentials: true }).catch((err) => {
           if (err.response?.status === 404) return { data: { mascotas: [] } }
           throw err
         }),
-        axios.get(VENTAS_URL, { withCredentials: true }).catch((err) => {
+        api.get(VENTAS_URL, { withCredentials: true }).catch((err) => {
           if (err.response?.status === 404) return { data: { ventas: [] } }
           throw err
         }),
@@ -64,7 +64,7 @@ export default function Clientes() {
     if (!confirmar) return
 
     try {
-      await axios.delete(`${CLIENTES_URL}/eliminar/${id}`, { withCredentials: true })
+      await api.delete(`${CLIENTES_URL}/eliminar/${id}`, { withCredentials: true })
       setClientes((prev) => prev.filter((c) => c.id !== id))
       setModalAbierto(false)
     } catch (err) {

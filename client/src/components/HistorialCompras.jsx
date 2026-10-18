@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from "../../config/api.js"
 import './HistorialCompras.css'
 
-const CLIENTES_URL = 'http://localhost:3000/clientes'
-const VENTAS_URL = 'http://localhost:3000/ventas'
+
+const CLIENTES_URL = 'clientes'
+const VENTAS_URL = 'ventas'
 
 export default function HistorialCompras({ clienteId, onClose }) {
   const [cliente, setCliente] = useState(null)
@@ -24,11 +25,11 @@ export default function HistorialCompras({ clienteId, onClose }) {
     setError(null)
     try {
       const [resClientes, resVentas] = await Promise.all([
-        axios.get(CLIENTES_URL, { withCredentials: true }).catch((err) => {
+        api.get(CLIENTES_URL, { withCredentials: true }).catch((err) => {
           if (err.response?.status === 404) return { data: { clientes: [] } }
           throw err
         }),
-        axios.get(`${VENTAS_URL}/lista-ventas`, { withCredentials: true }).catch((err) => {
+        api.get(`${VENTAS_URL}/lista-ventas`, { withCredentials: true }).catch((err) => {
           if (err.response?.status === 404) return { data: { ventas: [] } }
           throw err
         }),
@@ -66,7 +67,7 @@ export default function HistorialCompras({ clienteId, onClose }) {
 
     if (!detallePorVenta[idVenta]) {
       try {
-        const res = await axios.get(`${VENTAS_URL}/detalles-venta/${idVenta}`, {
+        const res = await api.get(`${VENTAS_URL}/detalles-venta/${idVenta}`, {
           withCredentials: true,
         })
         setDetallePorVenta((prev) => ({ ...prev, [idVenta]: res.data.detalles || [] }))

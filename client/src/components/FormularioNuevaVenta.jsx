@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import api from "../../config/api.js";
 
 export default function FormularioNuevaVenta({ onClose, onVentaRegistrada }) {
   const [tipoCliente, setTipoCliente] = useState("");
@@ -16,16 +17,16 @@ export default function FormularioNuevaVenta({ onClose, onVentaRegistrada }) {
 
   //para traer clientes desde la base de datos
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/clientes", { withCredentials: true })
+    api
+      .get("clientes", { withCredentials: true })
       .then((res) => setClientes(res.data.clientes))
       .catch((err) => console.error(err));
   }, []);
 
   //traer id del usuario logeado
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/users/comprobar", { withCredentials: true })
+    api
+      .get("users/comprobar", { withCredentials: true })
       .then((response) => {
         if (response.data.valid) {
           setUsuario(response.data.user);
@@ -41,8 +42,8 @@ export default function FormularioNuevaVenta({ onClose, onVentaRegistrada }) {
 
   //para traer productos desde la base de datos
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/products", { withCredentials: true })
+    api
+      .get("products", { withCredentials: true })
       .then((res) => setProductos(res.data))
       .catch((err) => console.error(err));
   }, []);
@@ -136,16 +137,16 @@ export default function FormularioNuevaVenta({ onClose, onVentaRegistrada }) {
       }
     }
 
-    const resVenta = await axios.post(
-      "http://localhost:3000/ventas/registrar-venta",
+    const resVenta = await api.post(
+      "ventas/registrar-venta",
       venta,
       { withCredentials: true },
     );
     const idVenta = resVenta.data.id_venta;
     const registrarDetallesVenta = async () => {
       for (let i = 0; i < productosVenta.length; i++) {
-        const res = await axios.post(
-          "http://localhost:3000/ventas/registrar-detalles",
+        const res = await api.post(
+          "ventas/registrar-detalles",
           {
             id_venta: idVenta,
             id_producto: productosVenta[i].id,
@@ -158,8 +159,8 @@ export default function FormularioNuevaVenta({ onClose, onVentaRegistrada }) {
     await registrarDetallesVenta();
     const descontarStock = async () => {
       for (let i = 0; i < productosVenta.length; i++) {
-        const res = await axios.post(
-          "http://localhost:3000/ventas/descontar-stock",
+        const res = await api.post(
+          "ventas/descontar-stock",
           {
             id_producto: productosVenta[i].id,
             cantidad: productosVenta[i].cantidad,

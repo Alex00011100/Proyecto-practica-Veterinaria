@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from "../../config/api.js"
 import Modal from '../../components/Modal.jsx'
 import FormularioEdicionUsuario from '../../components/FormularioEdicionUsuario.jsx'
 import './Perfil.css'
 
-const API_URL = 'http://localhost:3000/users'
+const API_URL = 'users'
 
 export default function Perfil() {
 	const [usuario, setUsuario] = useState(null)
@@ -18,7 +18,7 @@ export default function Perfil() {
 		try {
 			setCargando(true)
 			setError('')
-			const response = await axios.get(`${API_URL}/perfil`, {
+			const response = await api.get(`${API_URL}/perfil`, {
 				withCredentials: true,
 			})
 			setUsuario(response.data.user)

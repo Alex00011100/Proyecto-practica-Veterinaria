@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import api from "../../config/api.js"
 import Modal from '../../components/Modal.jsx'
 import FormularioAltaUsuario from '../../components/FormularioAltaUsuario.jsx'
 import './PanelControl.css'
 
-const API_URL = 'http://localhost:3000/users'
+
+const API_URL = 'users'
 
 export default function PanelControl() {
   const [usuarios, setUsuarios] = useState([])
@@ -17,7 +18,7 @@ export default function PanelControl() {
     try {
       setCargando(true)
       setError('')
-      const response = await axios.get(`${API_URL}/lista`, {
+      const response = await api.get(`${API_URL}/lista`, {
         withCredentials: true,
       })
       setUsuarios(response.data.usuarios || [])

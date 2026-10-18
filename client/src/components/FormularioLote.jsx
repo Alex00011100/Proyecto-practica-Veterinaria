@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../../config/api.js";
 
 export default function FormularioLote({productoId, onClose }) {
   const navegar = useNavigate();
@@ -78,7 +79,7 @@ export default function FormularioLote({productoId, onClose }) {
     console.log("Lote listo para enviar:", loteFormateado);
 
     try {
-      await axios.get("http://localhost:3000/products", { withCredentials: true })
+      await api.get("products", { withCredentials: true })
       .then((response) => {setProductos(response.data)})
     } catch (error) {
       console.error("Error al obtener productos:", error);
@@ -88,8 +89,8 @@ export default function FormularioLote({productoId, onClose }) {
 
     console.log("loteFormateado antes de enviar:", loteFormateado);
     try {
-      await axios.post(
-        "http://localhost:3000/products/product/addlote",
+      await api.post(
+        "products/product/addlote",
         loteFormateado,
         { withCredentials: true }
       );
@@ -100,7 +101,7 @@ export default function FormularioLote({productoId, onClose }) {
 
       setLote({
         codigo_lote: "",
-        idProducto: productoId,
+        idProducto: idProducto,
         stock_inicial: "",
         stock_actual: "",
         fecha_vencimiento: "",

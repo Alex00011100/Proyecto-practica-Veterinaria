@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./FormulariosClinicos.css";
+import api from "../../config/api.js";
 
 const formatearFecha = (fecha) => {
   if (!fecha) return "-";
@@ -13,10 +14,8 @@ export default function DetalleConsulta({ idConsulta, onClose }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:3000/mascotas/historia/consulta/${idConsulta}`, {
-        withCredentials: true,
-      })
+    api
+      .get(`mascotas/historia/consulta/${idConsulta}`)
       .then((response) => setConsulta(response.data))
       .catch(() => setError("No se pudo cargar la consulta."));
   }, [idConsulta]);
