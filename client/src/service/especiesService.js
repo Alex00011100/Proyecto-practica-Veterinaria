@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/especies";
+const API_URL = "especies";
 
 export const obtenerEspecies = async () => {
     const response = await axios.get(API_URL, {
