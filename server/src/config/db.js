@@ -23,7 +23,16 @@ pool.connect((err, client, release) => {
     release();
 });
 
+const db = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false,
+    },
+    max: 5
+});
+
 // Exportamos el método query (usando la sintaxis moderna de ESM)
 export default {
     query: (text, params) => pool.query(text, params),
+    pool: db,
 };
