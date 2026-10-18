@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import {CartesianGrid,Legend,Line,LineChart,Tooltip,XAxis,YAxis} from 'recharts'
-import api from "../../../server/src/config/api.js"
+import api from "../../config/api.js"
 
 const formatearFecha = (fecha) => {
   return [
