@@ -1,5 +1,5 @@
 .historia-clinica-page {
-  max-width: 960px;
+  max-width: 100%;
 }
 
 .historia-clinica-header {
@@ -201,15 +201,15 @@
 }
 
 .consultas-col-motivo {
-  width: 50%;
+  width: 43%;
 }
 
 .consultas-col-veterinario {
-  width: 15%;
+  width: 22%;
 }
 
 .consultas-col-detalles {
-  width: 20%;
+  width: 15%;
 }
 
 @media (max-width: 700px) {

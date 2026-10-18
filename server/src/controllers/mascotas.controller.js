@@ -18,7 +18,7 @@ const listaMascotas = async (req, res) => {
 const añadirMascota = async (req, res) => {
     try {
         const mascota = req.body;
-        if(!mascota.id_cliente || !mascota.nombre || !mascota.especie || !mascota.raza || !mascota.fecha_nacimiento || !mascota.genero) {
+        if(!mascota.id_cliente || !mascota.nombre || !mascota.id_especie || !mascota.id_raza || !mascota.fecha_nacimiento || !mascota.genero) {
             return res.status(400).json({ message: 'Faltan datos obligatorios de la mascota' });
         }
         const nuevaMascota = await añadirMascotaADB(mascota);
@@ -35,7 +35,7 @@ const editarMascota = async (req, res) => {
             return res.status(400).json({ message: 'Falta el ID de la mascota' });
         }
         const mascota = req.body;
-        if(!mascota.id_cliente || !mascota.nombre || !mascota.especie || !mascota.raza || !mascota.fecha_nacimiento || !mascota.genero) {
+        if(!mascota.id_cliente || !mascota.nombre || !mascota.id_especie || !mascota.id_raza || !mascota.fecha_nacimiento || !mascota.genero) {
             return res.status(400).json({ message: 'Faltan datos obligatorios de la mascota' });
         }
         const mascotaEditada = await editarMascotaADB(id, mascota);
@@ -73,7 +73,6 @@ const historiaClinica = async (req, res) => {
         const datos = await datosMascota(id);
         const consultas = await obtenerConsultas(id);
         const antecedentes = await obtenerAntecedentes(id);
-        console.log('Datos de la mascota:', datos);
 
         if (!datos) {
     return res.status(404).json({
@@ -86,8 +85,8 @@ res.status(200).json({
     historiaClinica: {
         id: datos.id,
         nombre: datos.nombre,
-        especie: datos.especie,
-        raza: datos.raza,
+        especie: datos.id_especie,
+        raza: datos.id_raza,
         fecha_nacimiento: datos.fecha_nacimiento,
         sexo: datos.genero,
         alergias: datos.alergias,
@@ -108,7 +107,7 @@ const registrarConsulta = async (req, res) => {
     try {
         const {id_mascota, fecha_consulta,peso_actual,temperatura, motivo, diagnostico, tratamiento, observaciones,id_lote,nombre_vacuna,fecha_aplicacion,proxima_dosis,observaciones_vacuna} = req.body;
         //Voy a quitar !temperatura y !observaciones porque no son "obligatorios" en el formulario y bloquean la creacion- Pablo
-        if(!id_mascota || !fecha_consulta || !peso_actual || !motivo || !diagnostico || !tratamiento) {
+        if(!id_mascota || !fecha_consulta /*|| !peso_actual*/ || !motivo /*|| !diagnostico || !tratamiento*/) {
             return res.status(400).json({ message: 'Faltan datos obligatorios de la consulta' });
         }
         if(id_mascota){
