@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import {CartesianGrid,Legend,Line,LineChart,Tooltip,XAxis,YAxis} from 'recharts'
+import api from "../../config/api.js"
 
 const formatearFecha = (fecha) => {
   return [
@@ -71,7 +72,7 @@ export default function Home() {
   useEffect(() => {
     const checkStock = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/products', {withCredentials: true})
+      const response = await api.get('/products')
       setStock([]) // Limpiar el stock antes de verificar nuevamente
       for (let i=0; i < response.data.length; i++) {
         // Verificar si el stock actual es menor a 30 de momento, luego ira stock_minimo
@@ -128,24 +129,23 @@ useEffect(() => {
       let url = "";
 
       if (fechaElegida === "dia") {
-        url = "http://localhost:3000/ventas/reporte/dia";
+        url = "/ventas/reporte/dia";
       }
 
       if (fechaElegida === "semana") {
-        url = "http://localhost:3000/ventas/reporte/semana";
+        url = "/ventas/reporte/semana";
       }
 
       if (fechaElegida === "mes") {
-        url = "http://localhost:3000/ventas/reporte/mes";
+        url = "/ventas/reporte/mes";
       }
 
       const params = fechaElegida === "dia"
         ? { fecha: fechaInicio }
         : { fecha_inicio: fechaInicio, fecha_fin: fechaFin };
 
-      const response = await axios.get(url, {
-        params,
-        withCredentials: true
+      const response = await api.get(url, {
+        params
       });
 
       if (fechaElegida === "dia") {
