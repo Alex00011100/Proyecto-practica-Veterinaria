@@ -1,9 +1,9 @@
-import axios from "axios";
+import api from '../../config/api.js'
 
 const API_URL = "especies";
 
 export const obtenerEspecies = async () => {
-    const response = await axios.get(API_URL, {
+    const response = await api.get(`${API_URL}`, {
         withCredentials:true,
     });
 
@@ -11,7 +11,7 @@ export const obtenerEspecies = async () => {
 };
 
 export const obtenerRazas = async (idEspecie) => {
-    const response = await axios.get(
+    const response = await api.get(
         `${API_URL}/${idEspecie}/razas`,
         {withCredentials:true, }
     );
