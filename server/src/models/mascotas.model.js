@@ -10,25 +10,6 @@ const obtenerListaMascotas = async () => {
     const {rows} = await db.query('SELECT * FROM mascotas WHERE activo = TRUE');
     return rows;
 }
-/** 
-const obtenerListaMascotas = async () => {
-    const { rows } = await db.query(`
-        SELECT
-            m.*,
-            e.nombre AS especie,
-            r.nombre AS raza
-        FROM mascotas m
-        LEFT JOIN especies e
-            ON m.id_especie = e.id
-        LEFT JOIN razas r
-            ON m.id_raza = r.id
-        WHERE m.activo = TRUE
-        ORDER BY m.id;
-    `);
-
-    return rows;
-};
-*/
 
 const editarMascotaADB = async (id, mascota) => {
     const {id_cliente,nombre,id_especie,id_raza,fecha_nacimiento,peso,genero,alergias,observaciones,numero_chip,activo} = mascota;
@@ -68,25 +49,6 @@ const datosMascota = async (id_mascota) => {
     const {rows} = await db.query('SELECT * FROM mascotas WHERE id = $1', [id_mascota]);
     return rows[0];
 }
-
-/*
-const datosMascota = async (id_mascota) => {
-    const { rows } = await db.query(`
-        SELECT
-            m.*,
-            e.nombre AS especie,
-            r.nombre AS raza
-        FROM mascotas m
-        LEFT JOIN especies e
-            ON m.id_especie = e.id
-        LEFT JOIN razas r
-            ON m.id_raza = r.id
-        WHERE m.id = $1;
-    `, [id_mascota]);
-
-    return rows[0];
-};
-* */
 
 const añadirAntecedente = async (antecedente) => {
     const {id_mascota,tipo,descripcion,fecha_diagnostico} = antecedente;
