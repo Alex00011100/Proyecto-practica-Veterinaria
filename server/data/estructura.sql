@@ -3,6 +3,8 @@
 DROP TABLE IF EXISTS estudios_adjuntos;
 DROP TABLE IF EXISTS detalle_consulta;
 DROP TABLE IF EXISTS consultas;
+DROP TABLE IF EXISTS motivos;
+DROP TABLE IF EXISTS diagnosticos;
 DROP TABLE IF EXISTS antecedentes;
 DROP TABLE IF EXISTS detalle_ventas;
 DROP TABLE IF EXISTS servicios;
@@ -287,22 +289,37 @@ CREATE TABLE antecedentes (
     CONSTRAINT fk_antecedente_mascota FOREIGN KEY (id_mascota) 
         REFERENCES mascotas(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+-- AGREGADO. Crear la tabla de diagnósticos primero (no depende de nadie)
+CREATE TABLE diagnosticos (
+    id SERIAL PRIMARY KEY,
+    diagnostico TEXT NOT NULL
+);
+
+-- AGREGADO. Crear la tabla de motivos (depende de diagnósticos)
+CREATE TABLE motivos (
+    id SERIAL PRIMARY KEY,
+    motivo TEXT NOT NULL,
+    id_diagnostico INTEGER NOT NULL,
+    CONSTRAINT fk_motivo_diagnostico FOREIGN KEY (id_diagnostico) 
+        REFERENCES diagnosticos(id) ON DELETE RESTRICT ON UPDATE CASCADE
+);
 -- 19. Tabla de Consultas Médicas
 CREATE TABLE consultas (
     id SERIAL PRIMARY KEY,
-    id_mascota INTEGER NOT NULL, -- Referencia a la mascota que se atiende
-    id_veterinario INTEGER NOT NULL, -- Referencia a usuarios (con rol Veterinario)
+    id_mascota INTEGER NOT NULL,
+    id_veterinario INTEGER NOT NULL,
+    motivo_id INTEGER NOT NULL, 
     fecha_consulta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    motivo TEXT NOT NULL,
-    peso_actual DECIMAL(5,2), -- Peso tomado en la sesión (para la evolución del paciente) - Podría también enviarse a la tabla de mascotas para actualizar el peso registrado
-    temperatura DECIMAL(4,1), -- Ej: 38.5 °C
-    diagnostico TEXT NOT NULL,
+    peso_actual DECIMAL(5,2) CHECK (peso_actual > 0), 
+    temperatura DECIMAL(4,1) CHECK (temperatura > 20.0 AND temperatura < 50.0), 
     tratamiento TEXT NOT NULL,
     observaciones TEXT,
     CONSTRAINT fk_consulta_mascota FOREIGN KEY (id_mascota) 
         REFERENCES mascotas(id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_consulta_veterinario FOREIGN KEY (id_veterinario) 
-        REFERENCES usuarios(id) ON DELETE RESTRICT ON UPDATE CASCADE
+        REFERENCES usuarios(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_consulta_motivo FOREIGN KEY (motivo_id) 
+        REFERENCES motivos(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 -- 20. Tabla de Vacunas, medicamentos y Desparasitaciones aplicadas
 CREATE TABLE detalle_consulta (
@@ -332,27 +349,37 @@ INSERT INTO antecedentes (id_mascota, tipo, descripcion, fecha_diagnostico) VALU
 ((SELECT id FROM mascotas WHERE nombre = 'Roko' LIMIT 1), 'Traumatismo', 'Pérdida de ojo izquierdo por accidente previo.', '2023-04-10'),
 ((SELECT id FROM mascotas WHERE nombre = 'Michi' LIMIT 1), 'Alergia', 'Reacción alérgica severa a betalactámicos (Penicilina).', '2024-01-15');
 -- 23. Consultas de prueba
-INSERT INTO consultas (id_mascota, id_veterinario, motivo, peso_actual, temperatura, diagnostico, tratamiento, observaciones) VALUES
+-- Diagnosticos de prueba
+INSERT INTO diagnosticos (diagnostico) VALUES 
+    ('Contractura muscular leve sin compromiso óseo.'),
+    ('Gastroenteritis leve por ingesta de cuerpo extraño.');
+
+-- Motivos de prueba
+INSERT INTO motivos (motivo, id_diagnostico) VALUES 
+    ('Control anual y renguera en pata trasera derecha.', (SELECT id FROM diagnosticos WHERE diagnostico = 'Contractura muscular leve sin compromiso óseo.' LIMIT 1)),
+    ('Falta de apetito y decaimiento general.', (SELECT id FROM diagnosticos WHERE diagnostico = 'Gastroenteritis leve por ingesta de cuerpo extraño.' LIMIT 1));
+
+-- Insertamos las consultas referenciando al motivo_id
+INSERT INTO consultas (id_mascota, id_veterinario, motivo_id, peso_actual, temperatura, tratamiento, observaciones) VALUES
 (
     (SELECT id FROM mascotas WHERE nombre = 'Roko' LIMIT 1),
     (SELECT id FROM usuarios WHERE usuario = 'LauritaVet' LIMIT 1),
-    'Control anual y renguera en pata trasera derecha.',
+    (SELECT id FROM motivos WHERE motivo = 'Control anual y renguera en pata trasera derecha.' LIMIT 1),
     20.80,
     38.6,
-    'Contractura muscular leve sin compromiso óseo.',
     'Reposo relativo por 5 días y Meloxicam cada 24hs.',
     'Evoluciona favorablemente del peso.'
 ),
 (
     (SELECT id FROM mascotas WHERE nombre = 'Michi' LIMIT 1),
     (SELECT id FROM usuarios WHERE usuario = 'LauritaVet' LIMIT 1),
-    'Falta de apetito y decaimiento general.',
+    (SELECT id FROM motivos WHERE motivo = 'Falta de apetito y decaimiento general.' LIMIT 1),
     3.65,
     39.2,
-    'Gastroenteritis leve por ingesta de cuerpo extraño.',
     'Dieta húmeda gastrointestinal y protector gástrico.',
     'Controlar hidratación en 48hs.'
 );
+
 -- 24. Detalle de vacunas aplicadas de prueba
 INSERT INTO detalle_consulta (id_consulta, id_lote, proxima_dosis, observaciones)
 VALUES (

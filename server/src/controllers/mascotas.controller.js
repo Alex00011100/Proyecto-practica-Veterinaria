@@ -1,7 +1,7 @@
 import mascotasModel from '../models/mascotas.model.js';
 import { actualizarStockLote } from '../models/ventas.model.js';
 
-const { añadirMascotaADB, obtenerListaMascotas, editarMascotaADB, eliminarMascotaADB, obtenerDetalleConsulta, datosMascota, añadirConsulta, obtenerConsultaPorID, obtenerMotivos, obtenerDiagnosticos, obtenerAntecedentes } = mascotasModel;
+const { añadirMascotaADB, obtenerListaMascotas, editarMascotaADB, eliminarMascotaADB, obtenerDetalleConsulta, datosMascota, añadirConsulta, obtenerConsultaPorID, obtenerMotivos, obtenerDiagnosticos, obtenerAntecedentes, obtenerDiagnosticosPorMotivo } = mascotasModel;
 
 const listaMascotas = async (req, res) => {
     try {
@@ -107,9 +107,10 @@ const historiaClinica = async (req, res) => {
 
 const registrarConsulta = async (req, res) => {
     try {
-        const {id_mascota, fecha_consulta,peso_actual,temperatura, motivo, tratamiento, observaciones,} = req.body;
+        const {id_mascota, fecha_consulta,peso_actual,temperatura, motivo_id, tratamiento, observaciones,} = req.body;
+        const motivoId = Number(motivo_id);
         //Voy a quitar !temperatura y !observaciones porque no son "obligatorios" en el formulario y bloquean la creacion- Pablo
-        if(!id_mascota || !fecha_consulta /*|| !peso_actual*/ || !motivo /*||  !tratamiento*/) {
+        if(!id_mascota || !fecha_consulta /*|| !peso_actual*/ || !Number.isInteger(motivoId) || motivoId <= 0 /*||  !tratamiento*/) {
             return res.status(400).json({ message: 'Faltan datos obligatorios de la consulta' });
         }
         if(id_mascota){
@@ -119,7 +120,7 @@ const registrarConsulta = async (req, res) => {
                 fecha_consulta,
                 peso_actual,
                 temperatura,
-                motivo,
+                motivo_id: motivoId,
                 tratamiento,
                 observaciones
             };
@@ -174,6 +175,28 @@ const diagnosticosConsultas = async (req, res) => {
 };
 
 
+//agregue esto
+const diagnosticosPorMotivo = async (req, res) => {
+    const motivoId = Number(req.params.motivoId);
+
+    if (!Number.isInteger(motivoId) || motivoId <= 0) {
+        return res.status(400).json({
+            message: "El ID del motivo no es válido"
+        });
+    }
+
+    try {
+        const diagnosticos = await obtenerDiagnosticosPorMotivo(motivoId);
+        res.status(200).json(diagnosticos);
+    } catch (error) {
+        console.error("Error al obtener los diagnósticos del motivo:", error);
+        res.status(500).json({
+            message: "Error al obtener los diagnósticos del motivo"
+        });
+    }
+};
+
+
 export default {
     listaMascotas,
     añadirMascota,
@@ -184,4 +207,5 @@ export default {
     consultaPorId,
     motivosConsultas,
     diagnosticosConsultas,
+    diagnosticosPorMotivo
 };
