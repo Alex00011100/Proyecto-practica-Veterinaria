@@ -90,29 +90,6 @@ export default function Home() {
   const [fechaAgenda, setFechaAgenda] = useState(obtenerFechaActual);
 
   useEffect(() => {
-    const checkStock = async () => {
-      try {
-        const response = await api.get("/products");
-        setStock([]); // Limpiar el stock antes de verificar nuevamente
-        for (let i = 0; i < response.data.length; i++) {
-          // Verificar si el stock actual es menor a 30 de momento, luego ira stock_minimo
-          if (response.data[i].stock_actual < 30) {
-            setStock((prevStock) => [...prevStock, response.data[i]]);
-          }
-        }
-      } catch (error) {
-        console.error("Error al verificar stock:", error);
-      }
-    };
-
-    checkStock();
-
-    const intervalo = setInterval(checkStock, 30000);
-
-    return () => clearInterval(intervalo);
-  }, []);
-
-  useEffect(() => {
     const cargarTurnos = async () => {
       try {
         setCargandoTurnos(true);
@@ -181,54 +158,7 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    const fetchVentas = async () => {
-      try {
-        let url = "";
-
-        if (fechaElegida === "dia") {
-          url = "/ventas/reporte/dia";
-        }
-
-        if (fechaElegida === "semana") {
-          url = "/ventas/reporte/semana";
-        }
-
-        if (fechaElegida === "mes") {
-          url = "/ventas/reporte/mes";
-        }
-
-        const params =
-          fechaElegida === "dia"
-            ? { fecha: fechaInicio }
-            : { fecha_inicio: fechaInicio, fecha_fin: fechaFin };
-
-        const response = await api.get(url, {
-          params,
-        });
-
-        if (fechaElegida === "dia") {
-          setVentasDiarias(response.data);
-        }
-
-        if (fechaElegida === "semana") {
-          setVentasSemanales(response.data);
-          console.log(response.data);
-        }
-
-        if (fechaElegida === "mes") {
-          setVentasMensuales(response.data);
-          console.log(response.data);
-        }
-      } catch (error) {
-        console.error("Error al obtener ventas:", error);
-      }
-    };
-
-    if (fechaInicio && fechaFin && fechaInicio <= fechaFin) {
-      fetchVentas();
-    }
-  }, [fechaInicio, fechaFin, fechaElegida]);
+  
 
   return (
     <section className="page-shell">
@@ -257,10 +187,10 @@ export default function Home() {
           </ul>
         </div>
       )}
-      <div>
-        <button onClick={() => cambiarEstadoFecha("dia")}>Día</button>
-        <button onClick={() => cambiarEstadoFecha("semana")}>Semana</button>
-        <button onClick={() => cambiarEstadoFecha("mes")}>Mes</button>
+      {/*<div>
+        <button onClick={() => cambiarEstadoFecha('dia')}>Día</button>
+        <button onClick={() => cambiarEstadoFecha('semana')}>Semana</button>
+        <button onClick={() => cambiarEstadoFecha('mes')}>Mes</button>
         <label>
           Fecha Inicio
           <input
@@ -269,28 +199,24 @@ export default function Home() {
             onChange={(e) => setFechaInicio(e.target.value)}
           />
         </label>
-        {fechaElegida !== "dia" && (
-          <label>
-            {" "}
-            Fecha fin
-            <input
-              type="date"
-              value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
-            />
-          </label>
-        )}
-        {fechaElegida === "dia" && (
-          <div>{generarGrafico(ventasDiarias, "dia")}</div>
-        )}
-        {fechaElegida === "semana" && (
-          <div>{generarGrafico(ventasSemanales, "semana")}</div>
-        )}
-        {fechaElegida === "mes" && (
-          <div>{generarGrafico(ventasMensuales, "mes")}</div>
-        )}
-      </div>
-      <AlertaStockFlotante />
+        {/*{fechaElegida !== "dia" && <label> Fecha fin<input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} /></label>}*/}
+     {/*fechaElegida === 'dia' && (
+        <div>
+          {generarGrafico(ventasDiarias, "dia")}
+        </div>
+     )}
+     {fechaElegida === 'semana' && (
+        <div>
+          {generarGrafico(ventasSemanales, "semana")}
+        </div>
+     )}
+     {fechaElegida === 'mes' && (
+        <div>
+          {generarGrafico(ventasMensuales, "mes")}
+        </div>
+     )}
+     </div>*/}
+     <AlertaStockFlotante />
     </section>
   );
 }

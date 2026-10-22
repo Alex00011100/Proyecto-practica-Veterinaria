@@ -2,11 +2,13 @@ import { useState, useEffect, useMemo } from "react";
 import api from "../../../config/api.js";
 import Modal from "../../components/Modal";
 import "./Ventas.css";
+import {useNavigate} from "react-router-dom";
 import FormularioNuevaVenta from "../../components/FormularioNuevaVenta";
 
 //const API_URL = "http://localhost:3000";
 
 export default function Ventas() {
+  const navigate = useNavigate();
   const [ventas, setVentas] = useState([]);
   const [productosPorVenta, setProductosPorVenta] = useState({});
   const [loading, setLoading] = useState(true);
@@ -220,7 +222,8 @@ export default function Ventas() {
     <section className="page-shell ventas-page">
       <div className="ventas-header">
         <h1>Ventas</h1>
-
+        <div>
+        <button className="btn-primary" onClick={() => navigate('/reportes')}>Reporte de Ventas</button>
         <button onClick={abrirModal} className="btn-primary">
           Nueva Venta
         </button>
@@ -231,6 +234,7 @@ export default function Ventas() {
             onVentaRegistrada={fetchVentas}
           />
         </Modal>
+        </div>
       </div>
       <div className="ventas-toolbar">
         <h2>Historial de ventas:</h2>

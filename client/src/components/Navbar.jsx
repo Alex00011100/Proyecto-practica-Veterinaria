@@ -2,12 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import logo from '../assets/Logo Veterinaria.png'
 import axios from 'axios'
+import api from '../../config/api.js'
 
 const navItems = [
   { label: 'Productos', path: '/productos' },
   { label: 'Ventas', path: '/ventas' },
-  { label: 'Reportes', path: '/reportes' },
-  { label: 'Alertas', path: '/alertas' },
   { label: 'Clientes', path: '/clientes' },
   { label: 'Mascotas', path: '/mascotas' },
   //{ label: 'Historias Clínicas', path: '/historias-clinicas' },
@@ -23,7 +22,7 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:3000/users/comprobar',{withCredentials: true})
+    api.get('/users/comprobar',{withCredentials: true})
       .then(response => {
         if (response.data.valid) {
           setUsuario(response.data.user.usuario);
@@ -42,7 +41,7 @@ export default function Navbar() {
   
   const cerrarSesion = () => {
 
-    axios.post('http://localhost:3000/users/logout',{},{withCredentials: true})
+    api.post('/users/logout',{},{withCredentials: true})
       .then(
         () => {
           setMostrarBotones(false);

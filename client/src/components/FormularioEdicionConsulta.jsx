@@ -13,10 +13,11 @@ export default function FormularioEdicionConsulta({
   onGuardado,
   consulta,
 }) {
+  
   const [formulario, setFormulario] = useState({
     peso: consulta.peso_actual ?? "",
     temperatura: consulta.temperatura ?? "",
-    motivo_id: "",
+    motivo_id: consulta.motivo_id ?? "",
     diagnostico: consulta.diagnostico ?? "",
     tratamiento: consulta.tratamiento ?? "",
     observaciones: consulta.observaciones ?? "",
@@ -33,9 +34,9 @@ export default function FormularioEdicionConsulta({
   const [errorMotivos, setErrorMotivos] = useState("");
   const [errorDiagnosticos, setErrorDiagnosticos] = useState("");
 
-  const motivoSeleccionado = motivosConsulta.find(
+  /*const motivoSeleccionado = motivosConsulta.find(
     (motivo) => motivo.nombre === formulario.motivo,
-  );
+  );*/
 
   const motivoActual = motivos.find(
     (motivo) => String(motivo.id) === formulario.motivo_id,
@@ -74,6 +75,30 @@ export default function FormularioEdicionConsulta({
       activo = false;
     };
   }, []);
+
+  useEffect(() => {
+    const cargarDiagnosticos = async () => {
+      try {
+        setCargandoDiagnosticos(true);
+        const { data } = await api.get(`mascotas/motivos/${formulario.motivo_id}/diagnosticos`);
+
+        if (!Array.isArray(data)) {
+          throw new Error("La respuesta de diagnosticos no tiene el formato esperado.");
+        }
+
+        setDiagnosticos(data);
+      } catch (err) {
+        console.error("Error al cargar los diagnosticos:", err);
+        setErrorDiagnosticos(
+          err.response?.data?.message || "No se pudieron cargar los diagnosticos.",
+        );
+      } finally {
+        setCargandoDiagnosticos(false);
+      }
+    };
+
+    cargarDiagnosticos();
+  }, [formulario.motivo_id]);
 
   useEffect(() => {
     if (motivos.length === 0) return;
@@ -123,7 +148,7 @@ export default function FormularioEdicionConsulta({
     //el unico campo obligatorio sera el motivo
     if (
       //!consulta.fecha_consulta ||
-      !consulta.motivo.trim() //||
+      !consulta.motivo_id //||
       //!consulta.diagnostico.trim() ||
       //!consulta.tratamiento.trim()
     ) {
@@ -146,27 +171,28 @@ export default function FormularioEdicionConsulta({
 
     setError("");
     setGuardando(true);
-
+    
     const datos = {
-      id_mascota: idMascota,
+      //id_mascota: idMascota,
       //la fecha se obtiene al momento de guardar
       //fecha_consulta: consulta.fecha_consulta,
-      peso_actual: consulta.peso === "" ? null : Number(consulta.peso), //paso de peso a peso_actual porque el server pedia peso_actual porque el controlador lo recibe como ausente
-      temperatura:
-        consulta.temperatura === "" ? null : Number(consulta.temperatura),
-      motivo: consulta.motivo.trim(),
-      diagnostico: consulta.diagnostico.trim(),
-      tratamiento: consulta.tratamiento.trim(),
-      observaciones: consulta.observaciones.trim() || null,
+      //peso_actual: consulta.peso === "" ? null : Number(consulta.peso), //paso de peso a peso_actual porque el server pedia peso_actual porque el controlador lo recibe como ausente
+      //temperatura:
+      //  consulta.temperatura === "" ? null : Number(consulta.temperatura),
+      motivo_id: formulario.motivo_id,
+      diagnostico: formulario.diagnostico.trim(),
+      tratamiento: formulario.tratamiento || "",
+      observaciones: formulario.observaciones || null,
 
       //solo se envia una fecha si el motivo es vacunacion
       proxima_dosis:
-        esVacunacion && consulta.proxima_dosis ? consulta.proxima_dosis : null,
+        esVacunacion && formulario.proxima_dosis ? formulario.proxima_dosis : null,
     };
-
+    
     try {
-      await api.post(
-        "mascotas/historia/consulta", //cambiar el metodo y la ruta para edicion de consulta
+      console.log(datos)
+      await api.put(
+        `mascotas/historia/consulta/editar/${consulta.id}/`, //cambiar el metodo y la ruta para edicion de consulta
         datos,
       );
 

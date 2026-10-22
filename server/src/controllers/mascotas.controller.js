@@ -1,7 +1,7 @@
 import mascotasModel from '../models/mascotas.model.js';
 import { actualizarStockLote } from '../models/ventas.model.js';
 
-const { añadirMascotaADB, obtenerListaMascotas, editarMascotaADB, eliminarMascotaADB, obtenerDetalleConsulta, datosMascota, añadirConsulta, obtenerConsultaPorID, obtenerMotivos, obtenerDiagnosticos, obtenerAntecedentes, obtenerDiagnosticosPorMotivo } = mascotasModel;
+const { añadirMascotaADB, obtenerListaMascotas, editarMascotaADB, eliminarMascotaADB, obtenerDetalleConsulta, datosMascota, añadirConsulta, obtenerConsultaPorID, obtenerMotivos, editarConsulta, obtenerAntecedentes, obtenerDiagnosticosPorMotivo } = mascotasModel;
 
 const listaMascotas = async (req, res) => {
     try {
@@ -165,14 +165,6 @@ const motivosConsultas = async (req, res) => {
         res.status(500).json({ message: 'Error al obtener los motivos de consulta', error });
     }
 };
-const diagnosticosConsultas = async (req, res) => {
-    try {
-        const diagnosticos = await obtenerDiagnosticos();
-        res.status(200).json(diagnosticos);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener los diagnósticos de consulta', error });
-    }
-};
 
 
 //agregue esto
@@ -196,6 +188,21 @@ const diagnosticosPorMotivo = async (req, res) => {
     }
 };
 
+const editarConsultaPorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const consulta = req.body;
+        const consultaEditada = await editarConsulta(id, consulta);
+        if(!consultaEditada) {
+            return res.status(404).json({ message: 'Consulta no encontrada' });
+        }
+        res.status(200).json(consultaEditada);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al editar la consulta', error: error.message });
+        console.error(error);
+    }
+};
+
 
 export default {
     listaMascotas,
@@ -206,6 +213,6 @@ export default {
     registrarConsulta,
     consultaPorId,
     motivosConsultas,
-    diagnosticosConsultas,
+    editarConsultaPorId,
     diagnosticosPorMotivo
 };

@@ -3,8 +3,9 @@ import axios from "axios";
 import "./Productos.css";
 import "./Ventas.css";
 import "./ReportesVentas.css";
+import api from "../../../config/api.js"
 
-const API_URL = "http://localhost:3000";
+
 
 const FORMAS_PAGO = [
   { clave: "efectivo", label: "Efectivo", badge: "badge-pago-efectivo" },
@@ -60,7 +61,7 @@ export default function ReportesVentas() {
       try {
         // BE-12: este endpoint agrupa las ventas por día dentro del rango
         // (aunque se llame "semana" sirve para cualquier rango de fechas).
-        const response = await axios.get(`${API_URL}/ventas/reporte/semana`, {
+        const response = await api.get(`/ventas/reporte/semana`, {
           params: { fecha_inicio: fechaDesde, fecha_fin: fechaHasta },
           withCredentials: true,
         });
