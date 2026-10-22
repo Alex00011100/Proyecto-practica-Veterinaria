@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import {CartesianGrid,Legend,Line,LineChart,Tooltip,XAxis,YAxis} from 'recharts'
+import AlertaStockFlotante from '../components/AlertaStockFlotante.jsx'
 import api from "../../config/api.js"
 
 const formatearFecha = (fecha) => {
@@ -212,6 +213,7 @@ useEffect(() => {
         </div>
      )}
      </div>
+     <AlertaStockFlotante />
     </section>
   )
 }
