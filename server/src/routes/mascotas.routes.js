@@ -11,7 +11,12 @@ router.get('/historia/:id', validarUsuario, mascotasController.historiaClinica);
 
 router.get('/motivos', validarUsuario, mascotasController.motivosConsultas);
 router.get('/diagnosticos', validarUsuario, mascotasController.diagnosticosConsultas);
-
+//agregue la siguiente ruta
+router.get(
+  "/motivos/:motivoId/diagnosticos",
+  validarUsuario,
+  mascotasController.diagnosticosPorMotivo
+);
 
 router.post('/historia/consulta', validarUsuario, mascotasController.registrarConsulta);
 

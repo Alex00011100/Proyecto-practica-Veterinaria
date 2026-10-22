@@ -21,7 +21,7 @@ const eliminarMascotaADB = async (id) => {
     const {rows} = await db.query('UPDATE mascotas SET activo = false WHERE id = $1 RETURNING *', [id]);
     return rows[0];
 }
-
+/** 
 const obtenerDetalleConsulta = async (id_consulta) => {
     const {rows} = await db.query('SELECT * FROM detalle_consulta WHERE id_consulta = $1', [id_consulta]);
     return rows;
@@ -30,7 +30,53 @@ const obtenerDetalleConsulta = async (id_consulta) => {
 const obtenerConsultaPorID = async (id) => {
     const {rows} = await db.query('SELECT * FROM consultas WHERE id = $1', [id]);
     return rows[0];
-}
+}*/
+const obtenerDetalleConsulta = async (idMascota) => {
+    const { rows } = await db.query(
+        `SELECT
+            c.id,
+            c.fecha_consulta,
+            c.peso_actual,
+            c.temperatura,
+            c.tratamiento,
+            c.observaciones,
+            m.motivo,
+            d.diagnostico,
+            u.nombre AS nombre_veterinario
+         FROM consultas c
+         LEFT JOIN motivos m ON m.id = c.motivo_id
+         LEFT JOIN diagnosticos d ON d.id = m.id_diagnostico
+         LEFT JOIN usuarios u ON u.id = c.id_veterinario
+         WHERE c.id_mascota = $1
+         ORDER BY c.fecha_consulta DESC`,
+        [idMascota]
+    );
+
+    return rows;
+};
+
+const obtenerConsultaPorID = async (idConsulta) => {
+    const { rows } = await db.query(
+        `SELECT
+            c.id,
+            c.fecha_consulta,
+            c.peso_actual,
+            c.temperatura,
+            c.tratamiento,
+            c.observaciones,
+            m.motivo,
+            d.diagnostico,
+            u.nombre AS nombre_veterinario
+         FROM consultas c
+         LEFT JOIN motivos m ON m.id = c.motivo_id
+         LEFT JOIN diagnosticos d ON d.id = m.id_diagnostico
+         LEFT JOIN usuarios u ON u.id = c.id_veterinario
+         WHERE c.id = $1`,
+        [idConsulta]
+    );
+
+    return rows[0];
+};
 
 const obtenerMotivos = async () => {
     const {rows} = await db.query('SELECT * FROM motivos');
@@ -65,6 +111,20 @@ const añadirDetalleConsulta = async (detalle) => {
     return rows[0];
 }
 
+//agregue esto:
+const obtenerDiagnosticosPorMotivo = async (motivoId) => {
+    const { rows } = await db.query(
+        `SELECT d.id, d.diagnostico
+         FROM motivos m
+         JOIN diagnosticos d ON d.id = m.id_diagnostico
+         WHERE m.id = $1
+         ORDER BY d.diagnostico`,
+        [motivoId]
+    );
+
+    return rows;
+};
+
 export default {
     añadirMascotaADB,
     obtenerListaMascotas,
@@ -77,5 +137,6 @@ export default {
     datosMascota,
     obtenerAntecedentes,
     añadirConsulta,
-    añadirDetalleConsulta
+    añadirDetalleConsulta,
+    obtenerDiagnosticosPorMotivo
 };

@@ -1,9 +1,8 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import CamposVacuna from "./CamposVacuna.jsx";
 import { hoy, vacunaVacia } from "../utils/vacuna.js";
 import "./FormulariosClinicos.css";
-import { motivosConsulta } from "../utils/motivosConsulta.js";
+//import { motivosConsulta } from "../utils/motivosConsulta.js";
 import api from "../../config/api.js";
 
 export default function FormularioConsulta({ idMascota, nombreMascota, onClose, onGuardado }) {
@@ -11,7 +10,7 @@ export default function FormularioConsulta({ idMascota, nombreMascota, onClose, 
     //fecha_consulta: hoy(),
     peso: "",
     temperatura: "",
-    motivo: "",
+    motivo_id: "",
     diagnostico: "",
     tratamiento: "",
     observaciones: "",
@@ -22,23 +21,69 @@ export default function FormularioConsulta({ idMascota, nombreMascota, onClose, 
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
-  
 
-  const motivoSeleccionado = motivosConsulta.find(
-    (motivo) => motivo.nombre === consulta.motivo
+  const [motivos, setMotivos] = useState([]);
+  const [cargandoMotivos, setCargandoMotivos] = useState(true);
+  const [errorMotivos, setErrorMotivos] = useState("");
+
+  const [diagnosticos, setDiagnosticos] = useState([]);
+  const [cargandoDiagnosticos, setCargandoDiagnosticos] = useState(false);
+  const [errorDiagnosticos, setErrorDiagnosticos] = useState("");
+
+  useEffect(() => {
+    let activo = true;
+
+    const cargarMotivos = async () => {
+      try {
+        const { data } = await api.get("mascotas/motivos");
+
+        if (!Array.isArray(data)) {
+          throw new Error("La respuesta de motivos no tiene el formato esperado.");
+        }
+
+        if (activo) setMotivos(data);
+      } catch (err) {
+        console.error("Error al cargar los motivos:", err);
+        if (activo) {
+          setErrorMotivos(
+            err.response?.data?.message || "No se pudieron cargar los motivos.",
+          );
+        }
+      } finally {
+        if (activo) setCargandoMotivos(false);
+      }
+    };
+
+    cargarMotivos();
+
+    return () => {
+      activo = false;
+    };
+  }, []);
+
+  const motivoActual = motivos.find(
+    (motivo) => String(motivo.id) === consulta.motivo_id,
   );
-
-  const esVacunacion = consulta.motivo === "Vacunación";
+/* 
+  const motivoSeleccionado = motivosConsulta.find(
+    (motivo) => motivo.nombre === motivoActual?.motivo,
+  );
+*/
+  const esVacunacion = motivoActual?.motivo === "Vacunación";
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    if (name === "motivo") {
+    if (name === "motivo_id") {
+      const motivoNuevo = motivos.find(
+        (motivo) => String(motivo.id) === value,
+      );
       setConsulta((actual) => ({
         ...actual,
-        motivo: value,
+        motivo_id: value,
         diagnostico: "",
-        proxima_dosis: value === "Vacunación" ? actual.proxima_dosis : ""
+        proxima_dosis:
+          motivoNuevo?.motivo === "Vacunación" ? actual.proxima_dosis : "",
       }));
       return;
     }
@@ -61,7 +106,7 @@ export default function FormularioConsulta({ idMascota, nombreMascota, onClose, 
     //el unico campo obligatorio sera el motivo
     if (
       //!consulta.fecha_consulta ||
-      !consulta.motivo.trim() //||
+      !consulta.motivo_id //||
       //!consulta.diagnostico.trim() ||
       //!consulta.tratamiento.trim()
     ) {
@@ -92,7 +137,7 @@ export default function FormularioConsulta({ idMascota, nombreMascota, onClose, 
       peso_actual: consulta.peso === "" ? null : Number(consulta.peso),//paso de peso a peso_actual porque el server pedia peso_actual porque el controlador lo recibe como ausente
       temperatura:
         consulta.temperatura === "" ? null : Number(consulta.temperatura),
-      motivo: consulta.motivo.trim(),
+      motivo_id: Number(consulta.motivo_id),
       diagnostico: consulta.diagnostico.trim(),
       tratamiento: consulta.tratamiento.trim(),
       observaciones: consulta.observaciones.trim() || null,
@@ -118,6 +163,51 @@ export default function FormularioConsulta({ idMascota, nombreMascota, onClose, 
       setGuardando(false);
     }
   };
+
+  useEffect(() => {
+    let activo = true;
+
+    const cargarDiagnosticos = async () => {
+      setDiagnosticos([]);
+      setErrorDiagnosticos("");
+
+      if (!consulta.motivo_id) {
+        setCargandoDiagnosticos(false);
+        return;
+      }
+
+      setCargandoDiagnosticos(true);
+
+      try {
+        const { data } = await api.get(
+          `mascotas/motivos/${consulta.motivo_id}/diagnosticos`,
+        );
+
+        if (!Array.isArray(data)) {
+          throw new Error("La respuesta de diagnósticos no tiene el formato esperado.");
+        }
+
+        if (activo) setDiagnosticos(data);
+      } catch (err) {
+        console.error("Error al cargar los diagnósticos:", err);
+
+        if (activo) {
+          setErrorDiagnosticos(
+            err.response?.data?.message ||
+              "No se pudieron cargar los diagnósticos.",
+          );
+        }
+      } finally {
+        if (activo) setCargandoDiagnosticos(false);
+      }
+    };
+
+    cargarDiagnosticos();
+
+    return () => {
+      activo = false;
+    };
+  }, [consulta.motivo_id]);
 
   return (
     <div className="cf-container">
@@ -173,15 +263,17 @@ export default function FormularioConsulta({ idMascota, nombreMascota, onClose, 
           <label htmlFor="consulta-motivo">
             Motivo de la consulta <span className="cf-obligatorio">*</span>
           </label>
-          <select name="motivo" id="consulta-motivo" value={consulta.motivo} onChange={handleChange} required>
-            <option value="">Seleccione un motivo</option>
+          <select name="motivo_id" id="consulta-motivo" value={consulta.motivo_id} onChange={handleChange} required>
+            <option value="">{cargandoMotivos ? "Cargando motivos..." : "Seleccione un motivo"}</option>
 
-            {motivosConsulta.map((motivo) => (
-              <option value={motivo.nombre} key={motivo.id}>
-                {motivo.nombre}
+            {motivos.map((motivo) => (
+              <option value={motivo.id} key={motivo.id}>
+                {motivo.motivo}
               </option>
             ))}
           </select>
+
+          {errorMotivos && <p className="cf-error" role="alert">{errorMotivos}</p>}
         </div>
 
         {esVacunacion && (
@@ -200,21 +292,37 @@ export default function FormularioConsulta({ idMascota, nombreMascota, onClose, 
         )}
 
         <div className="cf-campo">
-          <label htmlFor="consulta-diagnostico">
-            Diagnóstico
-          </label>
+          <label htmlFor="consulta-diagnostico">Diagnóstico</label>
 
-          <select name="diagnostico" id="consulta-diagnostico" value={consulta.diagnostico} onChange={handleChange} disabled={!motivoSeleccionado}>
+          <select
+            name="diagnostico"
+            id="consulta-diagnostico"
+            value={consulta.diagnostico}
+            onChange={handleChange}
+            disabled={!consulta.motivo_id || cargandoDiagnosticos || diagnosticos.length === 0}
+          >
             <option value="">
-              {motivoSeleccionado ? "Seleccione un diagnostico" : "Primero seleccione un motivo"}
+              {!consulta.motivo_id
+                ? "Primero seleccione un motivo"
+                : cargandoDiagnosticos
+                  ? "Cargando diagnósticos..."
+                  : diagnosticos.length === 0
+                    ? "No hay diagnósticos para este motivo"
+                    : "Seleccione un diagnóstico"}
             </option>
 
-            {motivoSeleccionado?.diagnosticos.map((diagnostico) => (
-              <option value={diagnostico} key={diagnostico}>
-                {diagnostico}
+            {diagnosticos.map((diagnostico) => (
+              <option value={diagnostico.diagnostico} key={diagnostico.id}>
+                {diagnostico.diagnostico}
               </option>
             ))}
           </select>
+
+          {errorDiagnosticos && (
+            <p className="cf-error" role="alert">
+              {errorDiagnosticos}
+            </p>
+          )}
         </div>
 
         <div className="cf-campo">
