@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../../../config/api.js'
 import FormularioProductos from '../../components/FormularioProductos'
 import FormularioEdicionProductos from '../../components/FormularioEdicionProducto'
 import Modal from '../../components/Modal'
 import FormularioLote from '../../components/FormularioLote'
 import './Productos.css'
 
-const API_URL = 'http://localhost:3000/products'
+const API_URL = 'products'
 
 export default function Productos() {
   const [vistaLotes, setVistaLotes] = useState(false)
@@ -26,7 +26,7 @@ export default function Productos() {
   const fetchProductos = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`${API_URL}`, { withCredentials: true })
+      const response = await api.get(`${API_URL}`, { withCredentials: true })
       setProductos(response.data)
     } catch (err) {
       console.error('Error al cargar productos:', err)
@@ -38,7 +38,7 @@ export default function Productos() {
 
   const fetchLotes = async () => {
     try {
-      const response = await axios.get(`${API_URL}/product/lotes`, { withCredentials: true })
+      const response = await api.get(`${API_URL}/product/lotes`, { withCredentials: true })
       setLotes(response.data.datos)
     
     } catch (err) {
@@ -52,7 +52,7 @@ export default function Productos() {
     if (!confirmar) return
 
     try {
-      await axios.delete(`${API_URL}/product/delete/${id}`, { withCredentials: true })
+      await api.delete(`${API_URL}/product/delete/${id}`, { withCredentials: true })
       setProductos((prev) => prev.filter((p) => p.id !== id))
       setModalAbierto(false)
     } catch (err) {

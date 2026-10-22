@@ -6,6 +6,8 @@ import axios from 'axios'
 const navItems = [
   { label: 'Productos', path: '/productos' },
   { label: 'Ventas', path: '/ventas' },
+  { label: 'Reportes', path: '/reportes' },
+  { label: 'Alertas', path: '/alertas' },
   { label: 'Clientes', path: '/clientes' },
   { label: 'Mascotas', path: '/mascotas' },
   //{ label: 'Historias Clínicas', path: '/historias-clinicas' },

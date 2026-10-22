@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import './Login.css'
 import axios from "axios";
 import { useNavigate, Outlet } from "react-router-dom";
+import api from "../../../config/api.js";
 
 
 export const VerificacionToken = () => {
 
   const navigate = useNavigate();
   useEffect(() => {
-  axios.get('http://localhost:3000/users/comprobar',{withCredentials: true})
+  api.get('/users/comprobar')
     .then(response => {
       if (!response.data.valid) {
         navigate('/login');
@@ -48,7 +49,7 @@ function Login() {
 
   const enviarDatos = async () => {
    
-    axios.post('http://localhost:3000/users/login', { usuario: usuario, password: password },{withCredentials: true})
+    api.post('/users/login', { usuario: usuario, password: password })
       .then(response => {
         localStorage.setItem('token', response.data.token);
         navigate('/');

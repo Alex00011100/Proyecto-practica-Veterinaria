@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import api from "../../config/api.js";
 
 const API_URL = "http://localhost:3000/products";
 
@@ -73,8 +74,8 @@ export default function FormularioEdicionProductos({ productoInicial, onClose })
     };
 
     console.log("Datos a enviar:", productoFormateado);
-    axios
-      .patch(`${API_URL}/product/update/${idProducto}`, productoFormateado)
+    api
+      .patch(`products/update/${idProducto}`, productoFormateado)
       .then((response) => {
         console.log("Producto editado:", response.data);
         alert("Producto actualizado correctamente.");

@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './FichaCliente.css'
+import api from "../../config/api.js";
 
-const CLIENTES_URL = 'http://localhost:3000/clientes'
-const MASCOTAS_URL = 'http://localhost:3000/mascotas'
 
 export default function FichaCliente({ clienteId, onClose }) {
   const [cliente, setCliente] = useState(null)
@@ -22,11 +21,11 @@ export default function FichaCliente({ clienteId, onClose }) {
     setError(null)
     try {
       const [resClientes, resMascotas] = await Promise.all([
-        axios.get(CLIENTES_URL, { withCredentials: true }).catch((err) => {
+        api.get("clientes").catch((err) => {
           if (err.response?.status === 404) return { data: { clientes: [] } }
           throw err
         }),
-        axios.get(MASCOTAS_URL, { withCredentials: true }).catch((err) => {
+        api.get("mascotas").catch((err) => {
           if (err.response?.status === 404) return { data: { mascotas: [] } }
           throw err
         }),

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../../config/api.js";
 
 export default function FormularioNuevaMascota({ onClose }) {
   const [tipoDueño, setTipoDueño] = useState("");
@@ -38,8 +39,8 @@ export default function FormularioNuevaMascota({ onClose }) {
   }, []);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/clientes", { withCredentials: true })
+    api
+      .get("clientes", { withCredentials: true })
       .then((response) => setDueños(response.data.clientes ?? []))
       .catch(() => setErrorDueños("No se pudieron cargar los dueños."));
   }, []);
@@ -50,8 +51,8 @@ export default function FormularioNuevaMascota({ onClose }) {
   });
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/especies", { withCredentials: true })
+    api
+      .get("especies", { withCredentials: true })
       .then((response) => setEspecies(response.data.especies ?? []))
       .catch(() => setErrorEspecies("No se pudo cargar las especies"));
   }, []);
@@ -115,8 +116,8 @@ export default function FormularioNuevaMascota({ onClose }) {
     };
 
     try {
-      await axios.post(
-        "http://localhost:3000/mascotas/add",
+      await api.post(
+        "mascotas/add",
         mascotaFormateada,
         { withCredentials: true },
       );
@@ -146,8 +147,8 @@ export default function FormularioNuevaMascota({ onClose }) {
     if (!idEspecie) return;
 
     try {
-      const response = await axios.get(
-        `http://localhost:3000/especies/${idEspecie}/razas`,
+      const response = await api.get(
+        `especies/${idEspecie}/razas`,
         { withCredentials: true },
       );
 

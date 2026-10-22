@@ -5,25 +5,36 @@ dotenv.config();
 
 const { Pool } = pg;
 
-// Configuración del Pool de conexiones
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-});
+const isProduction = process.env.NODE_ENV === 'production';
 
-// Validar la conexión al iniciar
+const pool = new Pool(
+    isProduction ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+        max: 5
+    } : {
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        port: process.env.DB_PORT,
+        max: 5,
+        ssl: false
+    }
+);
+
+// Verificar conexión
 pool.connect((err, client, release) => {
     if (err) {
-        return console.error('❌ Error de conexión a PostgreSQL:', err.stack);
+        console.error('❌ Error de conexión:', err.message);
+        return;
     }
-    console.log(`✨ Conexión exitosa a la base de datos: ${process.env.DB_NAME}`);
+
+    console.log(`✅ Conexión exitosa a ${process.env.DB_NAME}`);
     release();
 });
 
-// Exportamos el método query (usando la sintaxis moderna de ESM)
 export default {
     query: (text, params) => pool.query(text, params),
+    pool:pool
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../../config/api.js";
 import { useParams } from "react-router-dom";
 import Modal from "../../components/Modal";
 import FormularioConsulta from "../../components/FormularioConsulta";
@@ -55,10 +55,10 @@ export default function HistoriasClinicas() {
     const cargarHistoria = async () => {
       try {
         const [historiaResponse, clientesResponse] = await Promise.all([
-          axios.get(`http://localhost:3000/mascotas/historia/${id}`, {
+          api.get(`mascotas/historia/${id}`, {
             withCredentials: true,
           }),
-          axios.get("http://localhost:3000/clientes", {
+          api.get("clientes", {
             withCredentials: true,
           }),
         ]);

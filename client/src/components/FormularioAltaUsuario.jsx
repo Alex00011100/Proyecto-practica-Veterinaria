@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from 'axios'
+import api from "../../config/api.js";
 
-const API_URL = 'http://localhost:3000/users'
+
+// const API_URL = 'http://localhost:3000/users'
 
 const formularioInicial = {
     nombre: '',
@@ -28,9 +30,7 @@ export default function FormularioAltaUsuario({
 
   const cargarRoles = async () => {
     try {
-      const response = await axios.get(`${API_URL}/roles`, {
-        withCredentials: true,
-      })
+      const response = await api.get("users/roles")
 
       setRoles(response.data.roles || [])
     } catch (err) {
@@ -67,9 +67,7 @@ export default function FormularioAltaUsuario({
         rol: Number(formulario.rol),
       }
 
-      await axios.post(`${API_URL}/add`, datosUsuario, {
-        withCredentials: true,
-      })
+      await api.post("users/add", datosUsuario)
 
       setFormulario(formularioInicial)
 

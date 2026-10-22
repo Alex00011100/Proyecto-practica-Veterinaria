@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import NuevaCategoria from "./NuevaCategoria";
+import api from "../../config/api.js";
 
 export default function FormularioProductos({ onClose }) {
   const navegar = useNavigate();
@@ -24,7 +25,7 @@ export default function FormularioProductos({ onClose }) {
   useEffect(() => {
   const obtenerCategorias = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/products/product/categorias",{withCredentials:true})
+      const response = await api.get("products/product/categorias",{withCredentials:true})
       setCategorias(response.data)
       
     } catch (error) {
@@ -98,8 +99,8 @@ export default function FormularioProductos({ onClose }) {
 
     console.log("Producto listo para enviar:", productoFormateado);
     try {
-      await axios.post(
-        "http://localhost:3000/products/product/add",
+      await api.post(
+        "products/product/add",
         productoFormateado,
         { withCredentials: true },
       );

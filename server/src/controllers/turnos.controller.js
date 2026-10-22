@@ -36,9 +36,19 @@ const turnoCompletado = async (req, res) => {
     }
 }
 
+const obtenerDatosTurno = async (req, res) => {
+    try {
+        const turno = await turnosModel.datosTurno(req.params.id);
+        res.status(200).json(turno);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export default {
     asignarTurno,
     modificarTurno,
     cancelarTurno,
-    turnoCompletado
+    turnoCompletado,
+    obtenerDatosTurno
 };

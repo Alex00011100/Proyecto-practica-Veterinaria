@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../../config/api.js";
 
 const categorias_atencion = [
   "Higiene y Cuidado Diario",
@@ -25,10 +26,8 @@ export default function CamposVacuna({
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/products/product/categorias", {
-        withCredentials: true,
-      })
+    api
+      .get("products/product/categorias")
       .then((response) => {
         const permitidas = response.data.filter((categoria) =>
           categorias_atencion.includes(categoria.nombre),
@@ -40,10 +39,8 @@ export default function CamposVacuna({
         setErrorCategorias("No se pudieron cargar las categorías.");
       });
 
-    axios
-      .get("http://localhost:3000/products/", {
-        withCredentials: true,
-      })
+    api
+      .get("products/")
       .then((response) => {
         setProductos(response.data);
       })

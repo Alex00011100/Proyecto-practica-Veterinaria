@@ -22,49 +22,46 @@ const eliminarMascotaADB = async (id) => {
     return rows[0];
 }
 
-const obtenerVacunas = async (id_mascota) => {
-    const {rows} = await db.query('SELECT nombre_vacuna,fecha_aplicacion,proxima_dosis,usuarios.nombre AS nombre_veterinario FROM vacunas LEFT JOIN usuarios ON vacunas.id_veterinario = usuarios.id WHERE id_mascota = $1', [id_mascota]);
+const obtenerDetalleConsulta = async (id_consulta) => {
+    const {rows} = await db.query('SELECT * FROM detalle_consulta WHERE id_consulta = $1', [id_consulta]);
     return rows;
 }
-const obtenerVacunaPorId = async (id_vacuna) => {
-    const {rows} = await db.query('SELECT nombre_vacuna,fecha_aplicacion,proxima_dosis,usuarios.nombre AS nombre_veterinario FROM vacunas LEFT JOIN usuarios ON vacunas.id_veterinario = usuarios.id WHERE vacunas.id = $1', [id_vacuna]);
+
+const obtenerConsultaPorID = async (id) => {
+    const {rows} = await db.query('SELECT * FROM consultas WHERE id = $1', [id]);
     return rows[0];
 }
-const obtenerConsultas = async (id_mascota) => {
-    const {rows} = await db.query('SELECT consultas.id, consultas.fecha_consulta, consultas.peso_actual, consultas.temperatura, consultas.motivo, consultas.diagnostico, consultas.tratamiento, consultas.observaciones, usuarios.nombre AS nombre_veterinario FROM consultas LEFT JOIN usuarios ON consultas.id_veterinario = usuarios.id WHERE consultas.id_mascota = $1', [id_mascota]);
+
+const obtenerMotivos = async () => {
+    const {rows} = await db.query('SELECT * FROM motivos');
+    console.log(rows); 
     return rows;
 }
-const obtenerConsultaPorId = async (id_consulta) => {
-    //Agregue consultas.peso_actual y consultas.temperatura a la query para que devuelva esos datos tambien- Pablo
-    const {rows} = await db.query('SELECT consultas.id, consultas.fecha_consulta, consultas.peso_actual, consultas.temperatura, consultas.motivo, consultas.diagnostico, consultas.tratamiento, consultas.observaciones, usuarios.nombre AS nombre_veterinario FROM consultas LEFT JOIN usuarios ON consultas.id_veterinario = usuarios.id WHERE consultas.id = $1', [id_consulta]);
+
+const obtenerDiagnosticos = async () => {
+    const {rows} = await db.query('SELECT * FROM diagnosticos');
+    return rows;
+}
+
+const datosMascota = async (id) => {
+    const {rows} = await db.query('SELECT * FROM mascotas WHERE id = $1', [id]);
     return rows[0];
 }
 
 const obtenerAntecedentes = async (id_mascota) => {
-    const {rows} = await db.query('SELECT tipo,descripcion,fecha_diagnostico FROM antecedentes WHERE id_mascota = $1', [id_mascota]);
+    const {rows} = await db.query('SELECT * FROM antecedentes WHERE id_mascota = $1', [id_mascota]);
     return rows;
 }
 
-const datosMascota = async (id_mascota) => {
-    const {rows} = await db.query('SELECT * FROM mascotas WHERE id = $1', [id_mascota]);
-    return rows[0];
-}
-
-const añadirAntecedente = async (antecedente) => {
-    const {id_mascota,tipo,descripcion,fecha_diagnostico} = antecedente;
-    const {rows} = await db.query('INSERT INTO antecedentes (id_mascota,tipo,descripcion,fecha_diagnostico) VALUES ($1,$2,$3,$4) RETURNING *', [id_mascota,tipo,descripcion,fecha_diagnostico]);
-    return rows[0];
-}
-
-const añadirVacuna = async (vacuna) => {
-    const {id_mascota,nombre_vacuna,fecha_aplicacion,proxima_dosis,id_veterinario} = vacuna;
-    const {rows} = await db.query('INSERT INTO vacunas (id_mascota,nombre_vacuna,fecha_aplicacion,proxima_dosis,id_veterinario) VALUES ($1,$2,$3,$4,$5) RETURNING *', [id_mascota,nombre_vacuna,fecha_aplicacion,proxima_dosis,id_veterinario]);
-    return rows[0];
-}
-
 const añadirConsulta = async (consulta) => {
-    const {id_mascota,id_veterinario,fecha_consulta,peso_actual,temperatura,motivo,diagnostico,tratamiento,observaciones} = consulta;
-    const {rows} = await db.query('INSERT INTO consultas (id_mascota,id_veterinario,fecha_consulta,peso_actual,temperatura,motivo,diagnostico,tratamiento,observaciones) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *', [id_mascota,id_veterinario,fecha_consulta,peso_actual,temperatura,motivo,diagnostico,tratamiento,observaciones]);
+    const {id_mascota,id_veterinario,motivo_id,fecha_consulta,peso_actual,temperatura,tratamiento,observaciones} = consulta;
+    const {rows} = await db.query('INSERT INTO consultas (id_mascota,id_veterinario,fecha_consulta,peso_actual,temperatura,motivo_id,tratamiento,observaciones) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *', [id_mascota,id_veterinario,fecha_consulta,peso_actual,temperatura,motivo_id,tratamiento,observaciones]);
+    return rows[0];
+}
+
+const añadirDetalleConsulta = async (detalle) => {
+    const {id_consulta,id_lote,proxima_dosis,observaciones} = detalle;
+    const {rows} = await db.query('INSERT INTO detalle_consulta (id_consulta,id_lote,proxima_dosis,observaciones) VALUES ($1,$2,$3,$4) RETURNING *', [id_consulta,id_lote,proxima_dosis,observaciones]);
     return rows[0];
 }
 
@@ -73,13 +70,12 @@ export default {
     obtenerListaMascotas,
     editarMascotaADB,
     eliminarMascotaADB,
-    obtenerVacunas,
-    obtenerConsultas,
-    obtenerAntecedentes,
+    obtenerDetalleConsulta,
+    obtenerConsultaPorID,
+    obtenerMotivos,
+    obtenerDiagnosticos,
     datosMascota,
-    añadirAntecedente,
-    añadirVacuna,
+    obtenerAntecedentes,
     añadirConsulta,
-    obtenerVacunaPorId,
-    obtenerConsultaPorId
+    añadirDetalleConsulta
 };

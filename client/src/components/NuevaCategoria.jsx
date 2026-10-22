@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../../config/api.js";
 
 const NuevaCategoria = ({ onCategoriaCreada }) => {
   const [mostrar, setMostrar] = useState(false);
@@ -33,7 +33,7 @@ const NuevaCategoria = ({ onCategoriaCreada }) => {
     try {
       setLoading(true);
       setError("");
-      await axios.post("http://localhost:3000/products/product/addcategoria", categoria,{withCredentials:true})
+      await api.post("products/product/addcategoria", categoria,{withCredentials:true})
             .then(()=> categoriaCreada = categoria)
 
       console.log(categoriaCreada)
