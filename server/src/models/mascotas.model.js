@@ -21,16 +21,7 @@ const eliminarMascotaADB = async (id) => {
     const {rows} = await db.query('UPDATE mascotas SET activo = false WHERE id = $1 RETURNING *', [id]);
     return rows[0];
 }
-/** 
-const obtenerDetalleConsulta = async (id_consulta) => {
-    const {rows} = await db.query('SELECT * FROM detalle_consulta WHERE id_consulta = $1', [id_consulta]);
-    return rows;
-}
 
-const obtenerConsultaPorID = async (id) => {
-    const {rows} = await db.query('SELECT * FROM consultas WHERE id = $1', [id]);
-    return rows[0];
-}*/
 const obtenerDetalleConsulta = async (idMascota) => {
     const { rows } = await db.query(
         `SELECT
@@ -40,6 +31,7 @@ const obtenerDetalleConsulta = async (idMascota) => {
             c.temperatura,
             c.tratamiento,
             c.observaciones,
+            c.motivo_id,
             m.motivo,
             d.diagnostico,
             u.nombre AS nombre_veterinario
@@ -84,11 +76,6 @@ const obtenerMotivos = async () => {
     return rows;
 }
 
-const obtenerDiagnosticos = async () => {
-    const {rows} = await db.query('SELECT * FROM diagnosticos');
-    return rows;
-}
-
 const datosMascota = async (id) => {
     const {rows} = await db.query('SELECT * FROM mascotas WHERE id = $1', [id]);
     return rows[0];
@@ -111,6 +98,7 @@ const añadirDetalleConsulta = async (detalle) => {
     return rows[0];
 }
 
+
 //agregue esto:
 const obtenerDiagnosticosPorMotivo = async (motivoId) => {
     const { rows } = await db.query(
@@ -125,6 +113,12 @@ const obtenerDiagnosticosPorMotivo = async (motivoId) => {
     return rows;
 };
 
+const editarConsulta = async (id, consulta) => {
+    const {motivo_id,tratamiento,observaciones} = consulta;
+    const {rows} = await db.query('UPDATE consultas SET motivo_id=$1, tratamiento=$2, observaciones=$3 WHERE id=$4 RETURNING *', [motivo_id, tratamiento, observaciones, id]);
+    return rows[0];
+};
+
 export default {
     añadirMascotaADB,
     obtenerListaMascotas,
@@ -133,10 +127,10 @@ export default {
     obtenerDetalleConsulta,
     obtenerConsultaPorID,
     obtenerMotivos,
-    obtenerDiagnosticos,
     datosMascota,
     obtenerAntecedentes,
     añadirConsulta,
     añadirDetalleConsulta,
-    obtenerDiagnosticosPorMotivo
+    obtenerDiagnosticosPorMotivo,
+    editarConsulta
 };

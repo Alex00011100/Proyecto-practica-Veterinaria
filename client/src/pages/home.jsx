@@ -70,7 +70,7 @@ export default function Home() {
   const [fechaInicio, setFechaInicio] = useState(obtenerFechaActual)
   const [fechaFin, setFechaFin] = useState(obtenerFechaActual)
   const [fechaElegida, setFechaElegida] = useState('dia')
-  useEffect(() => {
+  /*useEffect(() => {
     const checkStock = async () => {
     try {
       const response = await api.get('/products')
@@ -93,8 +93,8 @@ export default function Home() {
 
   return () => clearInterval(intervalo)
   }, [])
-
-  const cambiarEstadoFecha = (nuevaFecha) => {
+*/
+  /*const cambiarEstadoFecha = (nuevaFecha) => {
   setFechaElegida(nuevaFecha);
 
   const hoy = new Date();
@@ -173,7 +173,7 @@ useEffect(() => {
   }
 
 }, [fechaInicio, fechaFin, fechaElegida]);
-
+*/
   return (
     <section className="page-shell">
       <h1>Bienvenido a la Veterinaria</h1>
@@ -188,7 +188,7 @@ useEffect(() => {
           </ul>
         </div>
       )}
-      <div>
+      {/*<div>
         <button onClick={() => cambiarEstadoFecha('dia')}>Día</button>
         <button onClick={() => cambiarEstadoFecha('semana')}>Semana</button>
         <button onClick={() => cambiarEstadoFecha('mes')}>Mes</button>
@@ -196,8 +196,8 @@ useEffect(() => {
           Fecha Inicio
         <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} />
         </label>
-        {fechaElegida !== "dia" && <label> Fecha fin<input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} /></label>}
-     {fechaElegida === 'dia' && (
+        {/*{fechaElegida !== "dia" && <label> Fecha fin<input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} /></label>}*/}
+     {/*fechaElegida === 'dia' && (
         <div>
           {generarGrafico(ventasDiarias, "dia")}
         </div>
@@ -212,7 +212,7 @@ useEffect(() => {
           {generarGrafico(ventasMensuales, "mes")}
         </div>
      )}
-     </div>
+     </div>*/}
      <AlertaStockFlotante />
     </section>
   )

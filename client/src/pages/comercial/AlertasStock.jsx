@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import api from '../../../config/api.js';
 import "./Productos.css";
 import "./Ventas.css";
 import "./AlertasStock.css";
 
-const API_URL = "http://localhost:3000/products";
+const API_URL = "/products";
 
 // Postgres devuelve SUM() como string y null si el producto no tiene lotes,
 // por eso se convierte con Number() y se toma null como 0.
@@ -25,6 +26,7 @@ const estadoDe = (producto) => {
 };
 
 export default function AlertasStock() {
+
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -37,7 +39,7 @@ export default function AlertasStock() {
       try {
         // TODO BE-11: cuando exista el endpoint de alertas de stock, se puede
         // reemplazar este GET y el filtro de abajo por esa llamada.
-        const response = await axios.get(API_URL, { withCredentials: true });
+        const response = await api.get(API_URL, { withCredentials: true });
 
         if (!cancelado) {
           setProductos(Array.isArray(response.data) ? response.data : []);
