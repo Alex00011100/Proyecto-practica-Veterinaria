@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-
 const { Pool } = pg;
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -31,11 +30,11 @@ pool.connect((err, client, release) => {
         return;
     }
 
-    console.log(`✅ Conexión exitosa a ${isProduction ? "producción" : "desarrollo"}`);
+    console.log(`✅ Conexión exitosa a ${process.env.DB_NAME}`);
     release();
 });
 
 export default {
     query: (text, params) => pool.query(text, params),
-    pool
+    pool:pool
 };
