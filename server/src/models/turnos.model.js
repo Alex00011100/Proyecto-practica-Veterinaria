@@ -28,10 +28,15 @@ const completarTurno = async (id) => {
     return rows[0]
 }
 
+const datosTurno = async (id) => {
+    const {rows} = await db.query('SELECT * FROM turnos WHERE id = $1', [id]);
+    return rows[0];
+}
 
 export default {
     guardarTurno,
     editarTurno,
     eliminarTurno,
-    completarTurno
+    completarTurno,
+    datosTurno
 };

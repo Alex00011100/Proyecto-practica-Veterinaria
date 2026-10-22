@@ -5,6 +5,8 @@ import Navbar from './components/Navbar.jsx'
 import Home from './pages/home.jsx'
 import Productos from './pages/comercial/Productos.jsx'
 import Ventas from './pages/comercial/Ventas.jsx'
+import ReportesVentas from './pages/comercial/ReportesVentas.jsx'
+import AlertasStock from './pages/comercial/AlertasStock.jsx'
 import Clientes from './pages/comercial/Clientes.jsx'
 import Mascotas from './pages/clinica/Mascotas.jsx'
 import HistoriasClinicas from './pages/clinica/historiasClinicas.jsx'
@@ -31,6 +33,8 @@ function App() {
               <Route path="/productos" element={<Productos />} />
               <Route path='/productos/añadir' element={<FormularioProductos />}></Route>
               <Route path="/ventas" element={<Ventas />} />
+              <Route path="/reportes" element={<ReportesVentas />} />
+              <Route path="/alertas" element={<AlertasStock />} />
               <Route path="/clientes" element={<Clientes />} />
               <Route path="/mascotas" element={<Mascotas />} />
               <Route path="/perfil" element={<Perfil />} />

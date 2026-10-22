@@ -1,7 +1,7 @@
 import mascotasModel from '../models/mascotas.model.js';
 import { actualizarStockLote } from '../models/ventas.model.js';
 
-const { añadirMascotaADB, obtenerListaMascotas, editarMascotaADB, eliminarMascotaADB, obtenerVacunas, obtenerConsultas, obtenerAntecedentes, datosMascota, añadirVacuna, añadirConsulta, añadirAntecedente, obtenerVacunaPorId, obtenerConsultaPorId } = mascotasModel;
+const { añadirMascotaADB, obtenerListaMascotas, editarMascotaADB, eliminarMascotaADB, obtenerDetalleConsulta, datosMascota, añadirConsulta, obtenerConsultaPorID, obtenerMotivos, editarConsulta, obtenerAntecedentes, obtenerDiagnosticosPorMotivo } = mascotasModel;
 
 const listaMascotas = async (req, res) => {
     try {
@@ -71,43 +71,46 @@ const historiaClinica = async (req, res) => {
             return res.status(400).json({ message: 'Falta el ID de la mascota' });
         }
         const datos = await datosMascota(id);
-        const consultas = await obtenerConsultas(id);
+        const consultas = await obtenerDetalleConsulta(id);
         const antecedentes = await obtenerAntecedentes(id);
 
         if (!datos) {
-    return res.status(404).json({
-        message: 'Mascota no encontrada'
-    });
-}
+            return res.status(404).json({
+            message: 'Mascota no encontrada'
+        });
+    
+    }
 
-res.status(200).json({
-    message: 'Historia clínica obtenida correctamente',
-    historiaClinica: {
-        id: datos.id,
-        nombre: datos.nombre,
-        especie: datos.id_especie,
-        raza: datos.id_raza,
-        fecha_nacimiento: datos.fecha_nacimiento,
-        sexo: datos.genero,
-        alergias: datos.alergias,
-        observaciones: datos.observaciones,
-        activo: datos.activo,
-        numero_chip: datos.numero_chip,
-        dueño: datos.id_cliente,
-        consultas: consultas,
-        antecedentes: antecedentes
+    res.status(200).json({
+        message: 'Historia clínica obtenida correctamente',
+        historiaClinica: {
+            id: datos.id,
+            nombre: datos.nombre,
+            especie: datos.id_especie,
+            raza: datos.id_raza,
+            fecha_nacimiento: datos.fecha_nacimiento,
+            sexo: datos.genero,
+            alergias: datos.alergias,
+            observaciones: datos.observaciones,
+            activo: datos.activo,
+            numero_chip: datos.numero_chip,
+            dueño: datos.id_cliente,
+            consultas: consultas,
+            antecedentes: antecedentes,
+        }
+    });
+        } catch (error) {
+            res.status(500).json({ message: 'Error al obtener la historia clínica', error });
+            console.error(error);
+        }
     }
-});
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener la historia clínica', error });
-    }
-}
 
 const registrarConsulta = async (req, res) => {
     try {
-        const {id_mascota, fecha_consulta,peso_actual,temperatura, motivo, diagnostico, tratamiento, observaciones,id_lote,nombre_vacuna,fecha_aplicacion,proxima_dosis,observaciones_vacuna} = req.body;
+        const {id_mascota, fecha_consulta,peso_actual,temperatura, motivo_id, tratamiento, observaciones,} = req.body;
+        const motivoId = Number(motivo_id);
         //Voy a quitar !temperatura y !observaciones porque no son "obligatorios" en el formulario y bloquean la creacion- Pablo
-        if(!id_mascota || !fecha_consulta /*|| !peso_actual*/ || !motivo /*|| !diagnostico || !tratamiento*/) {
+        if(!id_mascota || !fecha_consulta /*|| !peso_actual*/ || !Number.isInteger(motivoId) || motivoId <= 0 /*||  !tratamiento*/) {
             return res.status(400).json({ message: 'Faltan datos obligatorios de la consulta' });
         }
         if(id_mascota){
@@ -117,8 +120,7 @@ const registrarConsulta = async (req, res) => {
                 fecha_consulta,
                 peso_actual,
                 temperatura,
-                motivo,
-                diagnostico,
+                motivo_id: motivoId,
                 tratamiento,
                 observaciones
             };
@@ -128,50 +130,16 @@ const registrarConsulta = async (req, res) => {
             return res.status(500).json({ message: 'Error al registrar la consulta' });
             }
         }
-        if(nombre_vacuna){
-            if(!fecha_aplicacion || !proxima_dosis || !observaciones_vacuna) {
-                return res.status(400).json({ message: 'Faltan datos obligatorios de la vacuna' });
-            }
-            const vacuna = {
-            id_mascota,
-            id_lote,
-            nombre_vacuna,
-            fecha_aplicacion,
-            proxima_dosis,
-            id_veterinario: req.user.id,
-            observaciones: observaciones_vacuna
-        };
-        console.log('Actualizando stock del lote:', id_lote);
-        await actualizarStockLote(id_lote, 1); // Actualiza el stock del lote restando 1 unidad
-        const vacunaRegistrada = await añadirVacuna(vacuna);
-        console.log('Vacuna registrada:', vacunaRegistrada);
-        if(!vacunaRegistrada) {
-            return res.status(500).json({ message: 'Error al registrar la vacuna' });
-        }
-        }
+        
         
         
         res.status(200).json({ message: 'Operacion registrada correctamente'});
     } catch (error) {
         res.status(500).json({ message: 'Error al registrar la consulta', error: error.message });
+        console.error(error);
     }
 }
 
-const vacunasPorId = async (req, res) => {
-    try {
-        const { id_vacuna } = req.params;
-        if(!id_vacuna) {
-            return res.status(400).json({ message: 'Falta el ID de la vacuna' });
-        }
-        const vacuna = await obtenerVacunaPorId(id_vacuna);
-        if(!vacuna) {
-            return res.status(404).json({ message: 'Vacuna no encontrada' });
-        }
-        res.status(200).json(vacuna);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener la vacuna', error });
-    }
-};
 
 const consultaPorId = async (req, res) => {
     try {
@@ -179,42 +147,61 @@ const consultaPorId = async (req, res) => {
         if(!id_consulta) {
             return res.status(400).json({ message: 'Falta el ID de la consulta' });
         }
-        const consulta = await obtenerConsultaPorId(id_consulta);
+        const consulta = await obtenerConsultaPorID(id_consulta);
         if(!consulta) {
             return res.status(404).json({ message: 'Consulta no encontrada' });
         }
         res.status(200).json(consulta);
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener la consulta', error });
+        console.error(error);
     }
 };
-/*const actualizarHistoriaClinica = async (req, res) => {
+const motivosConsultas = async (req, res) => {
+    try {
+        const motivos = await obtenerMotivos();
+        res.status(200).json(motivos);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener los motivos de consulta', error });
+    }
+};
+
+
+//agregue esto
+const diagnosticosPorMotivo = async (req, res) => {
+    const motivoId = Number(req.params.motivoId);
+
+    if (!Number.isInteger(motivoId) || motivoId <= 0) {
+        return res.status(400).json({
+            message: "El ID del motivo no es válido"
+        });
+    }
+
+    try {
+        const diagnosticos = await obtenerDiagnosticosPorMotivo(motivoId);
+        res.status(200).json(diagnosticos);
+    } catch (error) {
+        console.error("Error al obtener los diagnósticos del motivo:", error);
+        res.status(500).json({
+            message: "Error al obtener los diagnósticos del motivo"
+        });
+    }
+};
+
+const editarConsultaPorId = async (req, res) => {
     try {
         const { id } = req.params;
-        if(!id) {
-            return res.status(400).json({ message: 'Falta el ID de la mascota' });
+        const consulta = req.body;
+        const consultaEditada = await editarConsulta(id, consulta);
+        if(!consultaEditada) {
+            return res.status(404).json({ message: 'Consulta no encontrada' });
         }
-        const { vacunas, consultas, antecedentes } = req.body;
-        if(vacunas) {
-            for(const vacuna of vacunas) {
-                await añadirVacuna({ id_mascota: id, ...vacuna });
-            }
-        }
-        if(consultas) {
-            for(const consulta of consultas) {
-                await añadirConsulta({ id_mascota: id, ...consulta });
-            }
-        }
-        if(antecedentes) {
-            for(const antecedente of antecedentes) {
-                await añadirAntecedente({ id_mascota: id, ...antecedente });
-            }
-        }
-        res.status(200).json({ message: 'Historia clínica actualizada correctamente' });
+        res.status(200).json(consultaEditada);
     } catch (error) {
-        res.status(500).json({ message: 'Error al actualizar la historia clínica', error });
+        res.status(500).json({ message: 'Error al editar la consulta', error: error.message });
+        console.error(error);
     }
-}*/
+};
 
 
 export default {
@@ -224,7 +211,8 @@ export default {
     eliminarMascota,
     historiaClinica,
     registrarConsulta,
-    vacunasPorId,
     consultaPorId,
-    //actualizarHistoriaClinica
+    motivosConsultas,
+    editarConsultaPorId,
+    diagnosticosPorMotivo
 };

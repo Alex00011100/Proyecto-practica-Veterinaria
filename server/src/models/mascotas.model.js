@@ -10,25 +10,6 @@ const obtenerListaMascotas = async () => {
     const {rows} = await db.query('SELECT * FROM mascotas WHERE activo = TRUE');
     return rows;
 }
-/** 
-const obtenerListaMascotas = async () => {
-    const { rows } = await db.query(`
-        SELECT
-            m.*,
-            e.nombre AS especie,
-            r.nombre AS raza
-        FROM mascotas m
-        LEFT JOIN especies e
-            ON m.id_especie = e.id
-        LEFT JOIN razas r
-            ON m.id_raza = r.id
-        WHERE m.activo = TRUE
-        ORDER BY m.id;
-    `);
-
-    return rows;
-};
-*/
 
 const editarMascotaADB = async (id, mascota) => {
     const {id_cliente,nombre,id_especie,id_raza,fecha_nacimiento,peso,genero,alergias,observaciones,numero_chip,activo} = mascota;
@@ -41,83 +22,115 @@ const eliminarMascotaADB = async (id) => {
     return rows[0];
 }
 
-const obtenerVacunas = async (id_mascota) => {
-    const {rows} = await db.query('SELECT nombre_vacuna,fecha_aplicacion,proxima_dosis,usuarios.nombre AS nombre_veterinario FROM vacunas LEFT JOIN usuarios ON vacunas.id_veterinario = usuarios.id WHERE id_mascota = $1', [id_mascota]);
+const obtenerDetalleConsulta = async (idMascota) => {
+    const { rows } = await db.query(
+        `SELECT
+            c.id,
+            c.fecha_consulta,
+            c.peso_actual,
+            c.temperatura,
+            c.tratamiento,
+            c.observaciones,
+            c.motivo_id,
+            m.motivo,
+            d.diagnostico,
+            u.nombre AS nombre_veterinario
+         FROM consultas c
+         LEFT JOIN motivos m ON m.id = c.motivo_id
+         LEFT JOIN diagnosticos d ON d.id = m.id_diagnostico
+         LEFT JOIN usuarios u ON u.id = c.id_veterinario
+         WHERE c.id_mascota = $1
+         ORDER BY c.fecha_consulta DESC`,
+        [idMascota]
+    );
+
     return rows;
-}
-const obtenerVacunaPorId = async (id_vacuna) => {
-    const {rows} = await db.query('SELECT nombre_vacuna,fecha_aplicacion,proxima_dosis,usuarios.nombre AS nombre_veterinario FROM vacunas LEFT JOIN usuarios ON vacunas.id_veterinario = usuarios.id WHERE vacunas.id = $1', [id_vacuna]);
+};
+
+const obtenerConsultaPorID = async (idConsulta) => {
+    const { rows } = await db.query(
+        `SELECT
+            c.id,
+            c.fecha_consulta,
+            c.peso_actual,
+            c.temperatura,
+            c.tratamiento,
+            c.observaciones,
+            m.motivo,
+            d.diagnostico,
+            u.nombre AS nombre_veterinario
+         FROM consultas c
+         LEFT JOIN motivos m ON m.id = c.motivo_id
+         LEFT JOIN diagnosticos d ON d.id = m.id_diagnostico
+         LEFT JOIN usuarios u ON u.id = c.id_veterinario
+         WHERE c.id = $1`,
+        [idConsulta]
+    );
+
     return rows[0];
-}
-const obtenerConsultas = async (id_mascota) => {
-    const {rows} = await db.query('SELECT consultas.id, consultas.fecha_consulta, consultas.peso_actual, consultas.temperatura, consultas.motivo, consultas.diagnostico, consultas.tratamiento, consultas.observaciones, usuarios.nombre AS nombre_veterinario FROM consultas LEFT JOIN usuarios ON consultas.id_veterinario = usuarios.id WHERE consultas.id_mascota = $1', [id_mascota]);
+};
+
+const obtenerMotivos = async () => {
+    const {rows} = await db.query('SELECT * FROM motivos');
+    console.log(rows); 
     return rows;
 }
-const obtenerConsultaPorId = async (id_consulta) => {
-    //Agregue consultas.peso_actual y consultas.temperatura a la query para que devuelva esos datos tambien- Pablo
-    const {rows} = await db.query('SELECT consultas.id, consultas.fecha_consulta, consultas.peso_actual, consultas.temperatura, consultas.motivo, consultas.diagnostico, consultas.tratamiento, consultas.observaciones, usuarios.nombre AS nombre_veterinario FROM consultas LEFT JOIN usuarios ON consultas.id_veterinario = usuarios.id WHERE consultas.id = $1', [id_consulta]);
+
+const datosMascota = async (id) => {
+    const {rows} = await db.query('SELECT * FROM mascotas WHERE id = $1', [id]);
     return rows[0];
 }
 
 const obtenerAntecedentes = async (id_mascota) => {
-    const {rows} = await db.query('SELECT tipo,descripcion,fecha_diagnostico FROM antecedentes WHERE id_mascota = $1', [id_mascota]);
+    const {rows} = await db.query('SELECT * FROM antecedentes WHERE id_mascota = $1', [id_mascota]);
     return rows;
 }
 
-const datosMascota = async (id_mascota) => {
-    const {rows} = await db.query('SELECT * FROM mascotas WHERE id = $1', [id_mascota]);
+const añadirConsulta = async (consulta) => {
+    const {id_mascota,id_veterinario,motivo_id,fecha_consulta,peso_actual,temperatura,tratamiento,observaciones} = consulta;
+    const {rows} = await db.query('INSERT INTO consultas (id_mascota,id_veterinario,fecha_consulta,peso_actual,temperatura,motivo_id,tratamiento,observaciones) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *', [id_mascota,id_veterinario,fecha_consulta,peso_actual,temperatura,motivo_id,tratamiento,observaciones]);
     return rows[0];
 }
 
-/*
-const datosMascota = async (id_mascota) => {
-    const { rows } = await db.query(`
-        SELECT
-            m.*,
-            e.nombre AS especie,
-            r.nombre AS raza
-        FROM mascotas m
-        LEFT JOIN especies e
-            ON m.id_especie = e.id
-        LEFT JOIN razas r
-            ON m.id_raza = r.id
-        WHERE m.id = $1;
-    `, [id_mascota]);
+const añadirDetalleConsulta = async (detalle) => {
+    const {id_consulta,id_lote,proxima_dosis,observaciones} = detalle;
+    const {rows} = await db.query('INSERT INTO detalle_consulta (id_consulta,id_lote,proxima_dosis,observaciones) VALUES ($1,$2,$3,$4) RETURNING *', [id_consulta,id_lote,proxima_dosis,observaciones]);
+    return rows[0];
+}
 
+
+//agregue esto:
+const obtenerDiagnosticosPorMotivo = async (motivoId) => {
+    const { rows } = await db.query(
+        `SELECT d.id, d.diagnostico
+         FROM motivos m
+         JOIN diagnosticos d ON d.id = m.id_diagnostico
+         WHERE m.id = $1
+         ORDER BY d.diagnostico`,
+        [motivoId]
+    );
+
+    return rows;
+};
+
+const editarConsulta = async (id, consulta) => {
+    const {motivo_id,tratamiento,observaciones} = consulta;
+    const {rows} = await db.query('UPDATE consultas SET motivo_id=$1, tratamiento=$2, observaciones=$3 WHERE id=$4 RETURNING *', [motivo_id, tratamiento, observaciones, id]);
     return rows[0];
 };
-* */
-
-const añadirAntecedente = async (antecedente) => {
-    const {id_mascota,tipo,descripcion,fecha_diagnostico} = antecedente;
-    const {rows} = await db.query('INSERT INTO antecedentes (id_mascota,tipo,descripcion,fecha_diagnostico) VALUES ($1,$2,$3,$4) RETURNING *', [id_mascota,tipo,descripcion,fecha_diagnostico]);
-    return rows[0];
-}
-
-const añadirVacuna = async (vacuna) => {
-    const {id_mascota,nombre_vacuna,fecha_aplicacion,proxima_dosis,id_veterinario} = vacuna;
-    const {rows} = await db.query('INSERT INTO vacunas (id_mascota,nombre_vacuna,fecha_aplicacion,proxima_dosis,id_veterinario) VALUES ($1,$2,$3,$4,$5) RETURNING *', [id_mascota,nombre_vacuna,fecha_aplicacion,proxima_dosis,id_veterinario]);
-    return rows[0];
-}
-
-const añadirConsulta = async (consulta) => {
-    const {id_mascota,id_veterinario,fecha_consulta,peso_actual,temperatura,motivo,diagnostico,tratamiento,observaciones} = consulta;
-    const {rows} = await db.query('INSERT INTO consultas (id_mascota,id_veterinario,fecha_consulta,peso_actual,temperatura,motivo,diagnostico,tratamiento,observaciones) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *', [id_mascota,id_veterinario,fecha_consulta,peso_actual,temperatura,motivo,diagnostico,tratamiento,observaciones]);
-    return rows[0];
-}
 
 export default {
     añadirMascotaADB,
     obtenerListaMascotas,
     editarMascotaADB,
     eliminarMascotaADB,
-    obtenerVacunas,
-    obtenerConsultas,
-    obtenerAntecedentes,
+    obtenerDetalleConsulta,
+    obtenerConsultaPorID,
+    obtenerMotivos,
     datosMascota,
-    añadirAntecedente,
-    añadirVacuna,
+    obtenerAntecedentes,
     añadirConsulta,
-    obtenerVacunaPorId,
-    obtenerConsultaPorId
+    añadirDetalleConsulta,
+    obtenerDiagnosticosPorMotivo,
+    editarConsulta
 };

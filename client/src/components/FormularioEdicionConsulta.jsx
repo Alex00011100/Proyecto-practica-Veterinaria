@@ -1,41 +1,131 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import CamposVacuna from "./CamposVacuna.jsx";
 import { hoy, vacunaVacia } from "../utils/vacuna.js";
 import "./FormulariosClinicos.css";
-import { motivosConsulta } from "../utils/motivosConsulta.js";
+//import { motivosConsulta } from "../utils/motivosConsulta.js";
 import api from "../../config/api.js";
 
-export default function FormularioEdicionConsulta({ idMascota, nombreMascota, onClose, onGuardado, consulta }) {
+export default function FormularioEdicionConsulta({
+  idMascota,
+  nombreMascota,
+  onClose,
+  onGuardado,
+  consulta,
+}) {
+  
   const [formulario, setFormulario] = useState({
-  peso: consulta.peso_actual ?? "",
-  temperatura: consulta.temperatura ?? "",
-  motivo: consulta.motivo ?? "",
-  diagnostico: consulta.diagnostico ?? "",
-  tratamiento: consulta.tratamiento ?? "",
-  observaciones: consulta.observaciones ?? "",
-  proxima_dosis: consulta.proxima_dosis ?? "",
-});
+    peso: consulta.peso_actual ?? "",
+    temperatura: consulta.temperatura ?? "",
+    motivo_id: consulta.motivo_id ?? "",
+    diagnostico: consulta.diagnostico ?? "",
+    tratamiento: consulta.tratamiento ?? "",
+    observaciones: consulta.observaciones ?? "",
+    proxima_dosis: consulta.proxima_dosis ?? "",
+  });
   const [aplicoVacuna, setAplicoVacuna] = useState(false);
   const [vacuna, setVacuna] = useState(vacunaVacia());
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
+  const [motivos, setMotivos] = useState([]);
+  const [diagnosticos, setDiagnosticos] = useState([]);
+  const [cargandoMotivos, setCargandoMotivos] = useState(true);
+  const [cargandoDiagnosticos, setCargandoDiagnosticos] = useState(false);
+  const [errorMotivos, setErrorMotivos] = useState("");
+  const [errorDiagnosticos, setErrorDiagnosticos] = useState("");
 
-  const motivoSeleccionado = motivosConsulta.find(
-    (motivo) => motivo.nombre === formulario.motivo
+  /*const motivoSeleccionado = motivosConsulta.find(
+    (motivo) => motivo.nombre === formulario.motivo,
+  );*/
+
+  const motivoActual = motivos.find(
+    (motivo) => String(motivo.id) === formulario.motivo_id,
   );
 
-  const esVacunacion = formulario.motivo === "Vacunación";
+  const esVacunacion = motivoActual?.motivo === "Vacunación";
+
+  useEffect(() => {
+    let activo = true;
+
+    const cargarMotivos = async () => {
+      try {
+        const { data } = await api.get("mascotas/motivos");
+
+        if (!Array.isArray(data)) {
+          throw new Error("La respuesta de motivos no tiene el formato esperado.");
+        }
+
+        if (activo) setMotivos(data);
+      } catch (err) {
+        console.error("Error al cargar los motivos:", err);
+
+        if (activo) {
+          setErrorMotivos(
+            err.response?.data?.message || "No se pudieron cargar los motivos.",
+          );
+        }
+      } finally {
+        if (activo) setCargandoMotivos(false);
+      }
+    };
+
+    cargarMotivos();
+
+    return () => {
+      activo = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const cargarDiagnosticos = async () => {
+      try {
+        setCargandoDiagnosticos(true);
+        const { data } = await api.get(`mascotas/motivos/${formulario.motivo_id}/diagnosticos`);
+
+        if (!Array.isArray(data)) {
+          throw new Error("La respuesta de diagnosticos no tiene el formato esperado.");
+        }
+
+        setDiagnosticos(data);
+      } catch (err) {
+        console.error("Error al cargar los diagnosticos:", err);
+        setErrorDiagnosticos(
+          err.response?.data?.message || "No se pudieron cargar los diagnosticos.",
+        );
+      } finally {
+        setCargandoDiagnosticos(false);
+      }
+    };
+
+    cargarDiagnosticos();
+  }, [formulario.motivo_id]);
+
+  useEffect(() => {
+    if (motivos.length === 0) return;
+
+    const motivoDeLaConsulta = motivos.find(
+      (motivo) => motivo.motivo === consulta.motivo,
+    );
+
+    setFormulario((actual) => ({
+      ...actual,
+      motivo_id: String(consulta.motivo_id ?? motivoDeLaConsulta?.id ?? ""),
+    }));
+  }, [motivos, consulta.motivo_id, consulta.motivo]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    if (name === "motivo") {
+    if (name === "motivo_id") {
       setFormulario((actual) => ({
         ...actual,
-        motivo: value,
+        motivo_id: value,
         diagnostico: "",
-        proxima_dosis: value === "Vacunación" ? actual.proxima_dosis : ""
+        proxima_dosis:
+          motivos.find((motivo) => String(motivo.id) === value)?.motivo ===
+            "Vacunación"
+            ? actual.proxima_dosis
+            : "",
       }));
       return;
     }
@@ -58,7 +148,7 @@ export default function FormularioEdicionConsulta({ idMascota, nombreMascota, on
     //el unico campo obligatorio sera el motivo
     if (
       //!consulta.fecha_consulta ||
-      !consulta.motivo.trim() //||
+      !consulta.motivo_id //||
       //!consulta.diagnostico.trim() ||
       //!consulta.tratamiento.trim()
     ) {
@@ -81,27 +171,29 @@ export default function FormularioEdicionConsulta({ idMascota, nombreMascota, on
 
     setError("");
     setGuardando(true);
-
+    
     const datos = {
-      id_mascota: idMascota,
+      //id_mascota: idMascota,
       //la fecha se obtiene al momento de guardar
       //fecha_consulta: consulta.fecha_consulta,
-      peso_actual: consulta.peso === "" ? null : Number(consulta.peso),//paso de peso a peso_actual porque el server pedia peso_actual porque el controlador lo recibe como ausente
-      temperatura:
-        consulta.temperatura === "" ? null : Number(consulta.temperatura),
-      motivo: consulta.motivo.trim(),
-      diagnostico: consulta.diagnostico.trim(),
-      tratamiento: consulta.tratamiento.trim(),
-      observaciones: consulta.observaciones.trim() || null,
+      //peso_actual: consulta.peso === "" ? null : Number(consulta.peso), //paso de peso a peso_actual porque el server pedia peso_actual porque el controlador lo recibe como ausente
+      //temperatura:
+      //  consulta.temperatura === "" ? null : Number(consulta.temperatura),
+      motivo_id: formulario.motivo_id,
+      diagnostico: formulario.diagnostico.trim(),
+      tratamiento: formulario.tratamiento || "",
+      observaciones: formulario.observaciones || null,
 
       //solo se envia una fecha si el motivo es vacunacion
-      proxima_dosis: esVacunacion && consulta.proxima_dosis ? consulta.proxima_dosis : null,
+      proxima_dosis:
+        esVacunacion && formulario.proxima_dosis ? formulario.proxima_dosis : null,
     };
-
+    
     try {
-      await api.post(
-        "mascotas/historia/consulta",//cambiar el metodo y la ruta para edicion de consulta
-        datos
+      console.log(datos)
+      await api.put(
+        `mascotas/historia/consulta/editar/${consulta.id}/`, //cambiar el metodo y la ruta para edicion de consulta
+        datos,
       );
 
       await onGuardado?.();
@@ -119,7 +211,9 @@ export default function FormularioEdicionConsulta({ idMascota, nombreMascota, on
   return (
     <div className="cf-container">
       <h2 className="cf-titulo">Edicion Consulta</h2>
-      {nombreMascota && (<p className="cf-subtitulo">Paciente: {nombreMascota}</p>)}
+      {nombreMascota && (
+        <p className="cf-subtitulo">Paciente: {nombreMascota}</p>
+      )}
 
       <form className="cf-form" onSubmit={handleSubmit}>
         <div className="cf-fila cf-fila-3">
@@ -170,54 +264,80 @@ export default function FormularioEdicionConsulta({ idMascota, nombreMascota, on
           <label htmlFor="consulta-motivo">
             Motivo de la consulta <span className="cf-obligatorio">*</span>
           </label>
-          <select name="motivo" id="consulta-motivo" value={formulario.motivo} onChange={handleChange} required>
-            <option value="">Seleccione un motivo</option>
+          <select
+            name="motivo_id"
+            id="consulta-motivo"
+            value={formulario.motivo_id}
+            onChange={handleChange}
+            required
+          >
+            <option value="">
+              {cargandoMotivos ? "Cargando motivos..." : "Seleccione un motivo"}
+            </option>
 
-            {motivosConsulta.map((motivo) => (
-              <option value={motivo.nombre} key={motivo.id}>
-                {motivo.nombre}
+            {motivos.map((motivo) => (
+              <option value={motivo.id} key={motivo.id}>
+                {motivo.motivo}
               </option>
             ))}
           </select>
         </div>
+
+        {errorMotivos && (
+          <p className="cf-error" role="alert">
+            {errorMotivos}
+          </p>
+        )}
 
         {esVacunacion && (
           <div className="cf-campo">
             <label htmlFor="consulta-proxima-dosis">Próxima dosis</label>
 
-            <input 
+            <input
               type="date"
               id="consulta-proxima-dosis"
               name="proxima_dosis"
               min={hoy()}
               value={formulario.proxima_dosis}
-              onChange={handleChange} 
+              onChange={handleChange}
             />
           </div>
         )}
 
         <div className="cf-campo">
-          <label htmlFor="consulta-diagnostico">
-            Diagnóstico
-          </label>
+          <label htmlFor="consulta-diagnostico">Diagnóstico</label>
 
-          <select name="diagnostico" id="consulta-diagnostico" value={consulta.diagnostico} onChange={handleChange} disabled={!motivoSeleccionado}>
+          <select
+            name="diagnostico"
+            id="consulta-diagnostico"
+            value={formulario.diagnostico}
+            onChange={handleChange}
+            disabled={
+              !formulario.motivo_id ||
+              cargandoDiagnosticos ||
+              diagnosticos.length === 0
+            }
+          >
             <option value="">
-              {motivoSeleccionado ? "Seleccione un diagnostico" : "Primero seleccione un motivo"}
+              {!formulario.motivo_id
+                ? "Primero seleccione un motivo"
+                : cargandoDiagnosticos
+                  ? "Cargando diagnósticos..."
+                  : diagnosticos.length === 0
+                    ? "No hay diagnósticos para este motivo"
+                    : "Seleccione un diagnóstico"}
             </option>
 
-            {motivoSeleccionado?.diagnosticos.map((diagnostico) => (
-              <option value={diagnostico} key={diagnostico}>
-                {diagnostico}
+            {diagnosticos.map((diagnostico) => (
+              <option value={diagnostico.diagnostico} key={diagnostico.id}>
+                {diagnostico.diagnostico}
               </option>
             ))}
           </select>
         </div>
 
         <div className="cf-campo">
-          <label htmlFor="consulta-tratamiento">
-            Tratamiento
-          </label>
+          <label htmlFor="consulta-tratamiento">Tratamiento</label>
           <textarea
             id="consulta-tratamiento"
             name="tratamiento"
@@ -258,7 +378,11 @@ export default function FormularioEdicionConsulta({ idMascota, nombreMascota, on
           )}
         </div>
 
-        {error && <p className="cf-error" role="alert">{error}</p>}
+        {error && (
+          <p className="cf-error" role="alert">
+            {error}
+          </p>
+        )}
 
         <div className="cf-acciones">
           <button type="button" className="cf-btn-cancelar" onClick={onClose}>

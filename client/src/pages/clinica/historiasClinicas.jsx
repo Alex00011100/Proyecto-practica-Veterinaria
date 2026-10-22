@@ -133,6 +133,7 @@ export default function HistoriasClinicas() {
   const vacunas = [...(historia.vacunas ?? [])].sort(
     porFechaDescendente("fecha_aplicacion"),
   );
+
   const consultas = [...(historia.consultas ?? [])].sort(
     porFechaDescendente("fecha_consulta"),
   );
