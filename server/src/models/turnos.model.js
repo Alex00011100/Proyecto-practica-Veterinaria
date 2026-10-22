@@ -28,15 +28,29 @@ const completarTurno = async (id) => {
     return rows[0]
 }
 
-const datosTurno = async (id) => {
-    const {rows} = await db.query('SELECT * FROM turnos WHERE id = $1', [id]);
+const datosTurno = async () => {
+    const {rows} = await db.query('SELECT * FROM turnos');
     return rows[0];
 }
+
+
+const obtenerTurnosPorFecha = async (fecha) => {
+    const { rows } = await db.query(
+        `SELECT * FROM turnos
+        INNER JOIN usuarios
+        WHERE turnos.profesional_id = usuarios.veterinario_id && turnos.fecha_hora = $1`,
+        [fecha]
+    );
+
+    return rows;
+};
+
 
 export default {
     guardarTurno,
     editarTurno,
     eliminarTurno,
     completarTurno,
-    datosTurno
+    datosTurno,
+    obtenerTurnosPorFecha
 };

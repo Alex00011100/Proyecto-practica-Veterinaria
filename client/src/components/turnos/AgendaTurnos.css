@@ -1,0 +1,167 @@
+
+.agenda-turnos {
+    margin: 24px 0;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e2e2e2;
+    border-radius: 12px;
+    color: #252525;
+}
+
+.agenda-turnos__encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.agenda-turnos__encabezado h2 {
+    margin: 0 0 6px;
+}
+
+.agenda-turnos__encabezado p {
+    margin: 0;
+    color: #666666;
+}
+
+.agenda-turnos__acciones {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.agenda-turnos__acciones button {
+    padding: 10px 14px;
+    border: 1px solid #d0d0d0;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #252525;
+    cursor: pointer;
+}
+
+.agenda-turnos__acciones button:hover {
+    background: #f2f2f2;
+}
+
+.agenda-turnos__filtros {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.agenda-turnos__filtros label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 220px;
+    flex: 1;
+    font-weight: 500;
+}
+
+.agenda-turnos__filtros select {
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #252525;
+}
+
+.agenda-turnos__mensaje {
+    padding: 20px 12px;
+    text-align: center;
+    color: #666666;
+}
+
+.agenda-turnos__error {
+    padding: 12px;
+    border-radius: 7px;
+    background: #fff0f0;
+    color: #a00000;
+}
+
+.agenda-turnos__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.agenda-turnos__item {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 16px;
+    border: 1px solid #e2e2e2;
+    border-radius: 8px;
+}
+
+.agenda-turnos__hora {
+    min-width: 55px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.agenda-turnos__datos {
+    flex: 1;
+    min-width: 0;
+}
+
+.agenda-turnos__datos h3 {
+    margin: 0 0 5px;
+    font-size: 1rem;
+}
+
+.agenda-turnos__datos p {
+    margin: 4px 0;
+    color: #666666;
+    overflow-wrap: anywhere;
+}
+
+.agenda-turnos__estado {
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: #eeeeee;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.agenda-turnos__estado--pendiente {
+    background: #fff0cc;
+    color: #805800;
+}
+
+.agenda-turnos__estado--completado {
+    background: #dff5e5;
+    color: #176b32;
+}
+
+.agenda-turnos__estado--cancelado {
+    background: #ffe2e2;
+    color: #a00000;
+}
+
+@media (max-width: 600px) {
+    .agenda-turnos {
+        padding: 16px;
+    }
+
+    .agenda-turnos__item {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .agenda-turnos__datos {
+        flex-basis: calc(100% - 70px);
+    }
+
+    .agenda-turnos__estado {
+        margin-left: 65px;
+    }
+
+    .agenda-turnos__acciones {
+        width: 100%;
+    }
+}
