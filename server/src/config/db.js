@@ -3,15 +3,26 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+
 const { Pool } = pg;
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    },
-    max: 5
-});
+const isProduction = process.env.NODE_ENV === 'production';
+
+const pool = new Pool(
+    isProduction ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+        max: 5
+    } : {
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        port: process.env.DB_PORT,
+        max: 5,
+        ssl: false
+    }
+);
 
 // Verificar conexión
 pool.connect((err, client, release) => {
@@ -20,7 +31,7 @@ pool.connect((err, client, release) => {
         return;
     }
 
-    console.log('✅ Conexión exitosa a PostgreSQL');
+    console.log(`✅ Conexión exitosa a ${isProduction ? "producción" : "desarrollo"}`);
     release();
 });
 
