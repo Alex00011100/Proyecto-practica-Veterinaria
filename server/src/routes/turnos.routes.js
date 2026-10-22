@@ -3,6 +3,8 @@ import turnosController from '../controllers/turnos.controller.js';
 
 const router = express.Router();
 
+
+router.get('/', turnosController.obtenerDatosTurno);
 router.post('/asignar', turnosController.asignarTurno);
 
 router.patch('/modificar/:id', turnosController.modificarTurno);
