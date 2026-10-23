@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "./AlertaStockFlotante.css";
+import api from '../../config/api.js'
 
-const API_URL = "http://localhost:3000/products";
+const API_URL = 'products';
 const CLAVE_SESION = "alertaStock";
 
 const stockDe = (producto) => Number(producto.stock_actual) || 0;
@@ -99,7 +100,7 @@ export default function AlertaStockFlotante() {
 
     const cargarProductos = async () => {
       try {
-        const response = await axios.get(API_URL, { withCredentials: true });
+        const response = await api.get(API_URL, { withCredentials: true });
 
         if (!cancelado && Array.isArray(response.data)) {
           setProductos(response.data);
