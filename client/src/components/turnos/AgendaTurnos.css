@@ -1,0 +1,309 @@
+
+.agenda-turnos {
+    margin: 24px 0;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e2e2e2;
+    border-radius: 12px;
+    color: #252525;
+}
+
+.agenda-turnos__encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.agenda-turnos__encabezado h2 {
+    margin: 0 0 6px;
+}
+
+.agenda-turnos__encabezado p {
+    margin: 0;
+    color: #666666;
+}
+
+.agenda-turnos__acciones {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.agenda-turnos__acciones button {
+    padding: 10px 14px;
+    border: 1px solid #d0d0d0;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #252525;
+    cursor: pointer;
+}
+
+.agenda-turnos__acciones button:hover {
+    background: #f2f2f2;
+}
+
+
+/* Navegación entre fechas */
+.agenda-turnos__navegacion {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    margin-bottom: 10px;
+}
+
+.agenda-turnos__navegacion button {
+    padding: 9px 14px;
+    border: 1px solid #d5d2e4;
+    border-radius: 8px;
+    background: #f5f3fa;
+    color: #40365f;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.agenda-turnos__navegacion button:hover {
+    background: #e9e4f5;
+    border-color: #b8acd9;
+}
+
+.agenda-turnos__navegacion button:active {
+    transform: translateY(0);
+}
+
+.agenda-turnos__navegacion button:focus-visible {
+    outline: 3px solid #b8a5ed;
+    outline-offset: 2px;
+}
+
+.agenda-turnos__navegacion button:nth-child(2) {
+    background: #6650a4;
+    border-color: #6650a4;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.agenda-turnos__navegacion button:nth-child(2):hover {
+    background: #514080;
+    border-color: #514080;
+}
+
+
+.agenda-turnos__filtros {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.agenda-turnos__filtros label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 220px;
+    flex: 1;
+    font-weight: 500;
+}
+
+.agenda-turnos__filtros select {
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #252525;
+}
+
+.agenda-turnos__mensaje {
+    padding: 20px 12px;
+    text-align: center;
+    color: #666666;
+}
+
+.agenda-turnos__error {
+    padding: 12px;
+    border-radius: 7px;
+    background: #fff0f0;
+    color: #a00000;
+}
+
+.agenda-turnos__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.agenda-turnos__item {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 16px;
+    border: 1px solid #e2e2e2;
+    border-radius: 8px;
+}
+
+
+/* Grupo de acciones de cada turno */
+.agenda-turnos__botones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Estilo base de las acciones */
+.agenda-turnos__botones button {
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.agenda-turnos__botones button:active {
+    transform: translateY(0);
+}
+
+.agenda-turnos__botones button:focus-visible {
+    outline: 3px solid #b8a5ed;
+    outline-offset: 2px;
+}
+
+/* Editar: azul */
+.agenda-turnos__botones button:nth-child(1) {
+    background: #3478c8;
+    border-color: #3478c8;
+}
+
+.agenda-turnos__botones button:nth-child(1):hover {
+    background: #2862a7;
+    box-shadow: 0 2px 6px #3478c833;
+}
+
+/* Completar: verde */
+.agenda-turnos__botones button:nth-child(2) {
+    background: #198754;
+    border-color: #198754;
+}
+
+.agenda-turnos__botones button:nth-child(2):hover {
+    background: #146c43;
+    box-shadow: 0 2px 6px #19875433;
+}
+
+/* Cancelar: rojo */
+.agenda-turnos__botones button:nth-child(3) {
+    background: #c83d45;
+    border-color: #c83d45;
+}
+
+.agenda-turnos__botones button:nth-child(3):hover {
+    background: #a92e35;
+    box-shadow: 0 2px 6px #c83d4533;
+}
+
+
+.agenda-turnos__hora {
+    min-width: 55px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.agenda-turnos__datos {
+    flex: 1;
+    min-width: 0;
+}
+
+.agenda-turnos__datos h3 {
+    margin: 0 0 5px;
+    font-size: 1rem;
+}
+
+.agenda-turnos__datos p {
+    margin: 4px 0;
+    color: #666666;
+    overflow-wrap: anywhere;
+}
+
+.agenda-turnos__estado {
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: #eeeeee;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.agenda-turnos__estado--pendiente {
+    background: #fff0cc;
+    color: #805800;
+}
+
+.agenda-turnos__estado--completado {
+    background: #dff5e5;
+    color: #176b32;
+}
+
+.agenda-turnos__estado--cancelado {
+    background: #ffe2e2;
+    color: #a00000;
+}
+
+@media (max-width: 600px) {
+    .agenda-turnos {
+        padding: 16px;
+    }
+
+    .agenda-turnos__item {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .agenda-turnos__datos {
+        flex-basis: calc(100% - 70px);
+    }
+
+    .agenda-turnos__estado {
+        margin-left: 65px;
+    }
+
+    .agenda-turnos__acciones {
+        width: 100%;
+    }
+
+    
+    .agenda-turnos__navegacion {
+        gap: 6px;
+    }
+
+    .agenda-turnos__navegacion button {
+        flex: 1;
+        padding: 9px 8px;
+        font-size: 0.8rem;
+    }
+
+    .agenda-turnos__botones {
+        width: 100%;
+        margin-left: 65px;
+    }
+
+    .agenda-turnos__botones button {
+        flex: 1;
+        padding: 9px 10px;
+    }
+
+}

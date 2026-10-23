@@ -28,15 +28,34 @@ const completarTurno = async (id) => {
     return rows[0]
 }
 
-const datosTurno = async (id) => {
-    const {rows} = await db.query('SELECT * FROM turnos WHERE id = $1', [id]);
+const datosTurno = async () => {
+    const {rows} = await db.query('SELECT * FROM turnos');
     return rows[0];
 }
+
+
+const obtenerTurnosPorFecha = async (fecha) => {
+    const { rows } = await db.query(
+        `SELECT
+            t.*,
+            u.nombre AS profesional_nombre
+         FROM turnos t
+         LEFT JOIN usuarios u ON u.id = t.profesional_id
+         WHERE t.fecha_hora >= $1::date
+           AND t.fecha_hora < ($1::date + INTERVAL '1 day')
+         ORDER BY t.fecha_hora ASC`,
+        [fecha]
+    );
+
+    return rows;
+};
+
 
 export default {
     guardarTurno,
     editarTurno,
     eliminarTurno,
     completarTurno,
-    datosTurno
+    datosTurno,
+    obtenerTurnosPorFecha
 };
