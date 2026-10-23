@@ -1,23 +1,24 @@
 import axios from "axios";
+import api from '../../config/api.js'
 
-const API_URL = "http://localhost:3000/turnos";
+const API_URL = 'turnos';
 
 export const asignarTurno = async (turno) => {
-  const response = await axios.post(`${API_URL}/asignar`, turno, {
+  const response = await api.post(`${API_URL}/asignar`, turno, {
     withCredentials: true,
   });
   return response.data;
 };
 
 export const modificarTurno = async (id, turno) => {
-  const response = await axios.patch(`${API_URL}/modificar/${id}`, turno, {
+  const response = await api.patch(`${API_URL}/modificar/${id}`, turno, {
     withCredentials: true,
   });
   return response.data;
 };
 
 export const cancelarTurno = async (id) => {
-  const response = await axios.patch(
+  const response = await api.patch(
     `${API_URL}/cancelar/${id}`,
     {},
     { withCredentials: true },
@@ -26,7 +27,7 @@ export const cancelarTurno = async (id) => {
 };
 
 export const completarTurno = async (id) => {
-  const response = await axios.patch(
+  const response = await api.patch(
     `${API_URL}/completar/${id}`,
     {},
     { withCredentials: true },
@@ -35,7 +36,7 @@ export const completarTurno = async (id) => {
 };
 
 export const obtenerTurnosPorFecha = async (fecha) => {
-  const response = await axios.get(
+  const response = await api.get(
     `${API_URL}/fecha`, {
     params: { fecha },
     withCredentials: true,
