@@ -1,19 +1,30 @@
-import { useState } from "react";
+//import { useState } from "react";
 import "./AgendaTurnos.css";
 
-export default function AgentaTurnos({
+export default function AgendaTurnos({
   turnos = [],
   profesionales = [],
   cargando = false,
   error = "",
+  profesionalSeleccionado = "todos",
+  setProfesionalSeleccionado,
+  estadoSeleccionado = "todos",
+  setEstadoSeleccionado,
+  fechaAgenda,
+  onCambiarDia,
+  onVolverHoy,
   onNuevoTurno,
+  onEditarTurno,
+  onCompletarTurno,
+  onCancelarTurno,
   onVerSemana,
   onVerMes,
 }) {
+  /*
   const [profesionalSeleccionado, setProfesionalSeleccionado] =
     useState("todos");
   const [estadoSeleccionado, setEstadoSeleccionado] = useState("todos");
-
+*/
   const turnosFiltrados = turnos.filter((turno) => {
     const coincideProfesional =
       profesionalSeleccionado === "todos" ||
@@ -40,10 +51,46 @@ export default function AgentaTurnos({
   return (
     <section className="agenda-turnos">
       <div className="agenda-turnos__encabezados">
-        <div>
-          <h2>Agenda de turnos</h2>
-          <p>Turnos programados para el dia</p>
-        </div>
+        
+<div>
+  <h2>Agenda de turnos</h2>
+
+  <p>
+    Turnos programados para el{" "}
+    {new Date(
+      `${fechaAgenda}T12:00:00`
+    ).toLocaleDateString("es-AR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    })}
+  </p>
+
+  <div className="agenda-turnos__navegacion">
+    <button
+      type="button"
+      onClick={() => onCambiarDia(-1)}
+    >
+      Día anterior
+    </button>
+
+    <button
+      type="button"
+      onClick={onVolverHoy}
+    >
+      Hoy
+    </button>
+
+    <button
+      type="button"
+      onClick={() => onCambiarDia(1)}
+    >
+      Día siguiente
+    </button>
+  </div>
+</div>
+
 
         <div className="agenda-turnos__acciones">
           <button type="button" onClick={onNuevoTurno}>
@@ -131,6 +178,32 @@ export default function AgentaTurnos({
                     <p>Teléfono: {turno.telefono_contacto}</p>
                   )}
                 </div>
+
+                {turno.estado !== "cancelado" &&
+                  turno.estado !== "completado" && (
+                    <div className="agenda-turnos__botones">
+                      <button
+                        type="button"
+                        onClick={() => onEditarTurno?.(turno)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onCompletarTurno?.(turno)}
+                      >
+                        Completar
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onCancelarTurno?.(turno)}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  )}
 
                 <span
                   className={`agenda-turnos__estado agenda-turnos__estado--${turno.estado}`}

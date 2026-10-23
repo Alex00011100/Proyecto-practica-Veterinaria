@@ -1,0 +1,246 @@
+
+.vista-mes {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  color: #252525;
+}
+
+.vista-mes__encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.vista-mes__encabezado h2 {
+  margin: 0 0 6px;
+}
+
+.vista-mes__encabezado p {
+  margin: 0;
+  color: #666;
+  text-transform: capitalize;
+}
+
+.vista-mes__encabezado button,
+.vista-mes__navegacion button {
+  padding: 9px 12px;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  background: #fff;
+  color: #252525;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.vista-mes__encabezado button:hover,
+.vista-mes__navegacion button:hover {
+  background: #f0edf7;
+}
+
+.vista-mes__navegacion {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vista-mes__calendario {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.vista-mes__nombre-dia {
+  padding: 10px 2px;
+  text-align: center;
+  font-weight: 600;
+  color: #555;
+}
+
+.vista-mes__celda-vacia {
+  min-height: 57px;
+}
+
+.vista-mes__dia {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  box-sizing: border-box;
+  gap: 4px;
+  min-width: 0;
+  min-height: 57px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  color: #252525;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.vista-mes__dia:hover {
+  border-color: #7560a8;
+  background: #f8f6fc;
+}
+
+.vista-mes__dia--hoy {
+  border: 2px solid #7560a8;
+}
+
+.vista-mes__dia--seleccionado {
+  background: #eee8fa;
+  border: 2px solid #59418a;
+}
+
+.vista-mes__numero {
+  font-weight: 600;
+  align-self: flex-start;
+  text-align: left;
+}
+
+.vista-mes__cantidad {
+  max-width: 100%;
+  padding: 2px 4px;
+  border-radius: 5px;
+  background: #e8e1f5;
+  color: #4b367c;
+  font-size: 0.7rem;
+  overflow-wrap: anywhere;
+}
+
+.vista-mes__detalle {
+  padding-top: 16px;
+  border-top: 1px solid #ddd;
+}
+
+.vista-mes__detalle h3 {
+  margin: 0 0 14px;
+  text-transform: capitalize;
+}
+
+.vista-mes__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vista-mes__turno {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #e3e0eb;
+  border-radius: 8px;
+  background: #f8f6fc;
+  overflow-wrap: anywhere;
+}
+
+.vista-mes__turno > strong {
+  color: #4b367c;
+}
+
+.vista-mes__turno small {
+  color: #666;
+}
+
+.vista-mes__estado {
+  align-self: flex-start;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #eee;
+  font-size: 0.75rem;
+}
+
+.vista-mes__estado--pendiente {
+  background: #fff0cc;
+  color: #805800;
+}
+
+.vista-mes__estado--completado {
+  background: #dff5e5;
+  color: #176b32;
+}
+
+.vista-mes__estado--cancelado {
+  background: #ffe2e2;
+  color: #a00000;
+}
+
+.vista-mes__vacio,
+.vista-mes__mensaje {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.vista-mes__mensaje {
+  padding: 20px 0;
+  text-align: center;
+}
+
+.vista-mes__error {
+  padding: 12px;
+  border-radius: 7px;
+  background: #fff0f0;
+  color: #a00000;
+}
+
+@media (max-width: 600px) {
+  .vista-mes__encabezado {
+    flex-wrap: wrap;
+  }
+
+  .vista-mes__navegacion {
+    justify-content: flex-start;
+  }
+
+  .vista-mes__calendario {
+    gap: 3px;
+  }
+
+  .vista-mes__dia {
+    min-height: 58px;
+    padding: 5px;
+    gap: 5px;
+  }
+
+  .vista-mes__celda-vacia {
+    min-height: 58px;
+  }
+
+  .vista-mes__cantidad {
+    padding: 2px 3px;
+    font-size: 0.65rem;
+  }
+}
+
+.vista-mes__boton-editar {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 6px 12px;
+  border: 1px solid #3478c8;
+  border-radius: 7px;
+  background: #3478c8;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.vista-mes__boton-editar:hover {
+  background: #2862a7;
+  transform: translateY(-1px);
+}
+
+.vista-mes__boton-editar:focus-visible {
+  outline: 3px solid #b8a5ed;
+  outline-offset: 2px;
+}

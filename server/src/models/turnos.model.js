@@ -36,9 +36,14 @@ const datosTurno = async () => {
 
 const obtenerTurnosPorFecha = async (fecha) => {
     const { rows } = await db.query(
-        `SELECT * FROM turnos
-        INNER JOIN usuarios
-        WHERE turnos.profesional_id = usuarios.veterinario_id && turnos.fecha_hora = $1`,
+        `SELECT
+            t.*,
+            u.nombre AS profesional_nombre
+         FROM turnos t
+         LEFT JOIN usuarios u ON u.id = t.profesional_id
+         WHERE t.fecha_hora >= $1::date
+           AND t.fecha_hora < ($1::date + INTERVAL '1 day')
+         ORDER BY t.fecha_hora ASC`,
         [fecha]
     );
 

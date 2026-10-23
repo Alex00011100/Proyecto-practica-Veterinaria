@@ -13,7 +13,15 @@ import {
 import AlertaStockFlotante from "../components/AlertaStockFlotante.jsx";
 import api from "../../config/api.js";
 import AgendaTurnos from "../components/turnos/AgendaTurnos.jsx";
-import { obtenerTurnosPorFecha } from "../service/turnosService.js";
+import {
+  obtenerTurnosPorFecha,
+  completarTurno,
+  cancelarTurno,
+} from "../service/turnosService.js";
+import Modal from "../components/Modal.jsx";
+import FormularioTurno from "../components/turnos/FormularioTurnos.jsx";
+import VistaSemana from "../components/turnos/VistaSemana.jsx";
+import VistaMes from "../components/turnos/VistaMes.jsx";
 
 const formatearFecha = (fecha) => {
   return [
@@ -33,6 +41,16 @@ const obtenerFechaActual = () => {
   ].join("-");
 };
 
+const desplazarFecha = (fecha, cantidadDias) => {
+  const [anio, mes, dia] = fecha.split("-").map(Number);
+
+  const nuevaFecha = new Date(anio, mes - 1, dia);
+  nuevaFecha.setDate(nuevaFecha.getDate() + cantidadDias);
+
+  return formatearFecha(nuevaFecha);
+};
+
+/*
 function generarGrafico(data, periodo) {
   console.log(data, periodo);
   if (!Array.isArray(data?.reporte)) {
@@ -72,7 +90,7 @@ function generarGrafico(data, periodo) {
       </LineChart>
     </>
   );
-}
+}*/
 
 export default function Home() {
   const [stock, setStock] = useState([]);
@@ -88,6 +106,16 @@ export default function Home() {
   const [cargandoTurnos, setCargandoTurnos] = useState(true);
   const [errorTurnos, setErrorTurnos] = useState("");
   const [fechaAgenda, setFechaAgenda] = useState(obtenerFechaActual);
+
+  const [modalNuevoTurnoAbierto, setModalNuevoTurnoAbierto] = useState(false);
+  const [actualizarturnos, setActualizarTurnos] = useState(0);
+  const [profesionalSeleccionado, setProfesionalSeleccionado] =
+    useState("todos");
+  const [estadoSeleccionado, setEstadoSeleccionado] = useState("todos");
+
+  const [modalSemanaAbierto, setModalSemanaAbierto] = useState(false);
+  const [turnoEditar, setTurnoEditar] = useState(null);
+  const [modalMesAbierto, setModalMesAbierto] = useState(false);
 
   useEffect(() => {
     const cargarTurnos = async () => {
@@ -108,7 +136,7 @@ export default function Home() {
     };
 
     cargarTurnos();
-  }, [fechaAgenda]);
+  }, [fechaAgenda, actualizarturnos]);
 
   useEffect(() => {
     const cargarProfesionales = async () => {
@@ -158,21 +186,72 @@ export default function Home() {
     }
   };
 
-  
+  const manejarCompletarTurno = async (turno) => {
+    const confirmar = window.confirm(
+      `¿Querés marcar como completado el turno de ${turno.nombre_contacto}?`,
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await completarTurno(turno.id);
+
+      setActualizarTurnos((actual) => actual + 1);
+    } catch (error) {
+      console.error("Error al completar el turno:", error);
+      alert(error.response?.data?.message || "No se pudo completar el turno.");
+    }
+  };
+
+  const manejarCancelarTurno = async (turno) => {
+    const confirmar = window.confirm(
+      `¿Querés cancelar el turno de ${turno.nombre_contacto}?`,
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await cancelarTurno(turno.id);
+
+      setActualizarTurnos((actual) => actual + 1);
+    } catch (error) {
+      console.error("Error al cancelar el turno:", error);
+      alert(error.response?.data?.message || "No se pudo cancelar el turno.");
+    }
+  };
 
   return (
     <section className="page-shell">
       <h1>Bienvenido a la Veterinaria</h1>
-      <p>
-        Usa el menú para navegar entre Productos, Ventas, Clientes, Mascotas e
-        Historias Clínicas.
-      </p>
 
       <AgendaTurnos
         turnos={turnos}
         profesionales={profesionales}
         cargando={cargandoTurnos}
         error={errorTurnos}
+        profesionalSeleccionado={profesionalSeleccionado}
+        setProfesionalSeleccionado={setProfesionalSeleccionado}
+        estadoSeleccionado={estadoSeleccionado}
+        setEstadoSeleccionado={setEstadoSeleccionado}
+        fechaAgenda={fechaAgenda}
+        onCambiarDia={(cantidad) => {
+          setFechaAgenda((fechaActual) =>
+            desplazarFecha(fechaActual, cantidad),
+          );
+        }}
+        onVolverHoy={() => setFechaAgenda(obtenerFechaActual())}
+        onNuevoTurno={() => {
+          setTurnoEditar(null);
+          setModalNuevoTurnoAbierto(true);
+        }}
+        onEditarTurno={(turno) => {
+          setTurnoEditar(turno);
+          setModalNuevoTurnoAbierto(true);
+        }}
+        onCompletarTurno={manejarCompletarTurno}
+        onCancelarTurno={manejarCancelarTurno}
+        onVerSemana={() => setModalSemanaAbierto(true)}
+        onVerMes={() => setModalMesAbierto(true)}
       />
 
       {stock.length > 0 && (
@@ -200,7 +279,7 @@ export default function Home() {
           />
         </label>
         {/*{fechaElegida !== "dia" && <label> Fecha fin<input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} /></label>}*/}
-     {/*fechaElegida === 'dia' && (
+      {/*fechaElegida === 'dia' && (
         <div>
           {generarGrafico(ventasDiarias, "dia")}
         </div>
@@ -216,7 +295,60 @@ export default function Home() {
         </div>
      )}
      </div>*/}
-     <AlertaStockFlotante />
+
+      <AlertaStockFlotante />
+
+      <Modal
+        isOpen={modalNuevoTurnoAbierto}
+        onClose={() => {
+          setModalNuevoTurnoAbierto(false);
+          setTurnoEditar(null);
+        }}
+      >
+        <FormularioTurno
+          profesionales={profesionales}
+          turnoEditar={turnoEditar}
+          onClose={() => {
+            setModalNuevoTurnoAbierto(false);
+            setTurnoEditar(null);
+          }}
+          onGuardado={async () => {
+            setActualizarTurnos((anterior) => anterior + 1);
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={modalSemanaAbierto}
+        onClose={() => setModalSemanaAbierto(false)}
+      >
+        <VistaSemana
+          profesionales={profesionales}
+          profesionalSeleccionado={profesionalSeleccionado}
+          estadoSeleccionado={estadoSeleccionado}
+          actualizarTurnos={actualizarturnos}
+          onEditarTurno={(turno) => {
+            setTurnoEditar(turno);
+            setModalSemanaAbierto(false);
+            setModalNuevoTurnoAbierto(true);
+          }}
+          onCerrar={() => setModalSemanaAbierto(false)}
+        />
+      </Modal>
+
+      <Modal isOpen={modalMesAbierto} onClose={() => setModalMesAbierto(false)}>
+        <VistaMes
+          profesionalSeleccionado={profesionalSeleccionado}
+          estadoSeleccionado={estadoSeleccionado}
+          actualizarTurnos={actualizarturnos}
+          onCerrar={() => setModalMesAbierto(false)}
+          onEditarTurno={(turno) => {
+            setTurnoEditar(turno);
+            setModalMesAbierto(false);
+            setModalNuevoTurnoAbierto(true);
+          }}
+        />
+      </Modal>
     </section>
   );
 }
