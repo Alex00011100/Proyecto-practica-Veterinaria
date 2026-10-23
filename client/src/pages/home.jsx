@@ -141,7 +141,7 @@ export default function Home() {
   useEffect(() => {
     const cargarProfesionales = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/users/lista", {
+        const response = await api.get("users/lista", {
           withCredentials: true,
         });
 
