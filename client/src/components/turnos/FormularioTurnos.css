@@ -1,0 +1,132 @@
+
+.formulario-turno {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: #252525;
+}
+
+.formulario-turno h2 {
+    margin: 0;
+}
+
+.formulario-turno__grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.formulario-turno__grupo legend {
+    padding: 0 6px;
+    font-weight: 600;
+}
+
+.formulario-turno__opciones {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.formulario-turno__campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.formulario-turno__campo label {
+    font-weight: 500;
+}
+
+.formulario-turno__campo input,
+.formulario-turno__campo select,
+.formulario-turno__campo textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    font: inherit;
+}
+
+.formulario-turno__resultados {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.formulario-turno__cliente {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    color: #252525;
+    text-align: left;
+    cursor: pointer;
+}
+
+.formulario-turno__cliente:hover,
+.formulario-turno__cliente.seleccionado {
+    background: #f0edf8;
+    border-color: #7560a8;
+}
+
+.formulario-turno__recordatorio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.formulario-turno__error {
+    margin: 0;
+    padding: 10px;
+    border-radius: 6px;
+    background: #fff0f0;
+    color: #a00000;
+}
+
+.formulario-turno__acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.formulario-turno__acciones button {
+    padding: 10px 16px;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    background: #fff;
+    color: #252525;
+    cursor: pointer;
+}
+
+.formulario-turno__acciones button[type="submit"] {
+    background: #4b367c;
+    color: #fff;
+    border-color: #4b367c;
+}
+
+.formulario-turno__acciones button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    .formulario-turno__grupo {
+        padding: 12px;
+    }
+
+    .formulario-turno__acciones {
+        flex-direction: column-reverse;
+    }
+
+    .formulario-turno__acciones button {
+        width: 100%;
+    }
+}

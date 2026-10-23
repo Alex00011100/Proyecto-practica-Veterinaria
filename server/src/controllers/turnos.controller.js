@@ -45,10 +45,49 @@ const obtenerDatosTurno = async (req, res) => {
     }
 };
 
+
+const obtenerTurnosPorFecha = async (req, res) => {
+    try {
+        const { fecha } = req.query;
+
+        if (!fecha || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+            return res.status(400).json({
+                message: "Debes proporcionar una fecha válida con formato AAAA-MM-DD"
+            });
+        }
+
+        const [anio, mes, dia] = fecha.split("-").map(Number);
+        const fechaComprobada = new Date(Date.UTC(anio, mes - 1, dia));
+
+        if (
+            fechaComprobada.getUTCFullYear() !== anio ||
+            fechaComprobada.getUTCMonth() !== mes - 1 ||
+            fechaComprobada.getUTCDate() !== dia
+        ) {
+            return res.status(400).json({
+                message: "La fecha indicada no existe"
+            });
+        }
+
+        const turnos = await turnosModel.obtenerTurnosPorFecha(fecha);
+
+        return res.status(200).json({ turnos });
+    } catch (error) {
+        console.error("Error al obtener los turnos:", error);
+
+        return res.status(500).json({
+            message: "Error al obtener los turnos",
+            error: error.message
+        });
+    }
+};
+
+
 export default {
     asignarTurno,
     modificarTurno,
     cancelarTurno,
     turnoCompletado,
-    obtenerDatosTurno
+    obtenerDatosTurno,
+    obtenerTurnosPorFecha
 };
